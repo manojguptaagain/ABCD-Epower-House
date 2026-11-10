@@ -3,12 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="/ABCD-Epower-House/">
     <title>ABCD ENTERTAINMENT STUDIO - Settings & Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = { darkMode: 'class' }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .pkg-thumb-crop {
+            width: 84px;
+            height: 84px;
+            object-fit: cover;
+            border-radius: 12px;
+        }
+    </style>
 </head>
 <body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 font-sans pb-24 select-none transition-colors duration-200">
 
@@ -114,7 +123,7 @@
 
     <!-- Package Add/Edit Modal -->
     <div id="packageModal" class="fixed inset-0 bg-slate-900/70 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden p-4 space-y-3">
+        <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden p-4 space-y-3 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
                 <h3 id="modalPkgHeading" class="font-bold text-xs text-indigo-900 dark:text-indigo-300">Add New Studio Package</h3>
                 <button onclick="closePackageModal()" class="text-slate-400 hover:text-red-600 font-bold text-lg">&times;</button>
@@ -147,10 +156,21 @@
                     <label class="block font-bold mb-1">Setup Specification *</label>
                     <input type="text" id="formPkgSetup" required placeholder="Photo+Video+Drone" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none">
                 </div>
-                <div>
-                    <label class="block font-bold mb-1">Banner Image URL *</label>
-                    <input type="url" id="formPkgImage" required placeholder="https://images.unsplash.com/..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none">
+                
+                <!-- Package Image Selection (URL + Local Storage) -->
+                <div class="space-y-1.5 bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600">
+                    <label class="block font-bold text-indigo-900 dark:text-indigo-300">Package Photo (URL ya Local File)</label>
+                    <div class="space-y-1">
+                        <input type="url" id="formPkgImage" placeholder="Paste Web Image Link (URL)..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none">
+                        <div class="text-center font-bold text-[10px] text-slate-400">--- OR CHOOSE FROM MOBILE/COMPUTER ---</div>
+                        <input type="file" id="formPkgLocalFile" accept="image/*" onchange="handleLocalImageUpload(event)" class="w-full text-[10px] text-slate-500 dark:text-slate-300 file:mr-2 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-[10px] file:font-bold file:bg-indigo-600 file:text-white cursor-pointer">
+                    </div>
+                    <div id="imagePreviewContainer" class="mt-2 hidden flex items-center gap-2 border-t dark:border-slate-600 pt-2">
+                        <img id="imagePreviewBox" class="pkg-thumb-crop border dark:border-slate-600 shadow-sm" src="">
+                        <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">Image loaded!</span>
+                    </div>
                 </div>
+
                 <div>
                     <label class="block font-bold mb-1">Short Description</label>
                     <textarea id="formPkgDesc" rows="2" placeholder="Package highlights..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none"></textarea>
@@ -206,7 +226,7 @@
         }
 
         function switchTab(tabName) {
-            if(tabName === 'home') window.location.href = "Home.html";
+            if(tabName === 'home') window.location.href = "index.html";
             else if(tabName === 'files') window.location.href = "Files.html";
             else if(tabName === 'customers') window.location.href = "Customers.html";
             else if(tabName === 'settings') return;
@@ -278,10 +298,10 @@
                 item.className = "bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600 flex justify-between items-center gap-2 text-xs";
                 item.innerHTML = `
                     <div class="flex items-center gap-2.5 overflow-hidden">
-                        <img src="${pkg.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-900 shrink-0">
+                        <img src="${pkg.image}" class="pkg-thumb-crop border dark:border-slate-600 shrink-0 bg-slate-900">
                         <div class="truncate">
                             <h4 class="font-bold text-slate-900 dark:text-white truncate">${pkg.title}</h4>
-                            <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">₹${parseFloat(pkg.price).toLocaleString()} | ${pkg.setup}</p>
+                            <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold mt-0.5">₹${parseFloat(pkg.price).toLocaleString()} | ${pkg.setup}</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-1.5 shrink-0">
@@ -293,8 +313,24 @@
             });
         }
 
+        function handleLocalImageUpload(e) {
+            const file = e.target.files[0];
+            if(!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const base64Str = evt.target.result;
+                document.getElementById('formPkgImage').value = base64Str;
+                document.getElementById('imagePreviewBox').src = base64Str;
+                document.getElementById('imagePreviewContainer').classList.remove('hidden');
+            };
+            reader.readAsDataURL(file);
+        }
+
         function openPackageModal(mode, index = -1) {
             document.getElementById('packageModal').classList.remove('hidden');
+            document.getElementById('imagePreviewContainer').classList.add('hidden');
+            document.getElementById('formPkgLocalFile').value = '';
+
             if(mode === 'add') {
                 document.getElementById('modalPkgHeading').innerText = "Add New Studio Package";
                 document.getElementById('editPkgIndex').value = -1;
@@ -311,6 +347,11 @@
                 document.getElementById('formPkgSetup').value = p.setup;
                 document.getElementById('formPkgImage').value = p.image;
                 document.getElementById('formPkgDesc').value = p.desc || '';
+
+                if(p.image) {
+                    document.getElementById('imagePreviewBox').src = p.image;
+                    document.getElementById('imagePreviewContainer').classList.remove('hidden');
+                }
             }
         }
 
@@ -328,6 +369,11 @@
             const setup = document.getElementById('formPkgSetup').value.trim();
             const image = document.getElementById('formPkgImage').value.trim();
             const desc = document.getElementById('formPkgDesc').value.trim();
+
+            if(!image) {
+                alert("Please provide image URL or choose a local photo.");
+                return;
+            }
 
             let pkgs = getPackagesList();
             const pkgObj = { id: "pkg_" + Date.now(), title, price, events, setup, hasPhoto, image, desc };
@@ -366,7 +412,6 @@
                         return;
                     }
 
-                    // Strict filter: keval wahi rows jinka status exact 'DELETED' hai
                     const deletedRows = data.filter(b => {
                         const st = String(b.Status || b.status || '').toUpperCase().trim();
                         return st === 'DELETED';
@@ -377,7 +422,6 @@
                         return;
                     }
 
-                    // Group deleted rows by Customer ID
                     const groupedMap = {};
                     deletedRows.forEach(b => {
                         let cid = b['Customer ID'] || b.CustomerID || b.customerid || b.custid || 'UNKNOWN';
