@@ -27,66 +27,111 @@
     </style>
 </head>
 
-<body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 font-sans pb-40 select-none transition-colors duration-200">
+<body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 font-sans pb-45 select-none transition-colors duration-200">
 
     <!-- Pull to Refresh Indicator -->
-    <div id="pullIndicator" class="fixed top-0 left-0 right-0 flex justify-center items-center py-3 z-50 pointer-events-none opacity-0 -translate-y-10 transition-all duration-200">
-        <div class="bg-indigo-900 text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-2">
+    <div id="pullIndicator" class="fixed top-0 left-0 right-0 flex justify-center items-center py-2 z-50 pointer-events-none opacity-0 -translate-y-10 transition-all duration-200">
+        <div class="bg-indigo-900 text-white text-[11px] px-3 py-1.5 rounded-full shadow-lg flex items-center gap-1.5">
             <i class="fas fa-sync-alt fa-spin text-emerald-400"></i>
             <span id="pullText" class="font-bold">Pull to Refresh</span>
         </div>
     </div>
 
     <!-- Header -->
-    <header class="bg-indigo-900 text-white shadow-md p-4 sticky top-0 z-40">
+    <header class="bg-indigo-900 text-white shadow-md p-2.5 sticky top-0 z-40">
         <div class="max-w-xl mx-auto text-center">
-            <h1 class="text-xl sm:text-2xl font-bold tracking-wide" id="headerTitle">🎬 ABCD ENTERTAINMENT STUDIO</h1>
-            <p class="text-[11px] text-indigo-200" id="headerSubtitle">Advanced Studio Management System</p>
+            <h1 class="text-sm sm:text-base font-bold tracking-wide" id="headerTitle">🎬 ABCD ENTERTAINMENT STUDIO</h1>
+            <p class="text-[9px] text-indigo-200" id="headerSubtitle">Advanced Studio Management System</p>
         </div>
     </header>
 
-    <main class="max-w-xl mx-auto p-3 space-y-4">
+    <main class="max-w-xl mx-auto p-2 space-y-2">
 
         <!-- Search Bar + New Booking Button -->
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-1.5">
             <div class="relative flex-1">
-                <input type="text" id="searchInput" oninput="applySmoothSearch()" placeholder="Search Name, Event, Mobile..." class="w-full border border-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-xl pl-9 pr-3 py-2.5 text-slate-800 text-sm font-semibold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
-                <i class="fas fa-search absolute left-3 top-3.5 text-indigo-500 text-sm"></i>
+                <input type="text" id="searchInput" oninput="applyUniversalSearch()" placeholder="Search ID, Mobile, Name, Amount, Date..." class="w-full border border-indigo-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white rounded-lg pl-7 pr-2.5 py-1 text-slate-800 text-[11px] font-semibold focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm">
+                <i class="fas fa-search absolute left-2 top-2 text-indigo-500 text-[10px]"></i>
             </div>
-            <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow transition whitespace-nowrap">
-                <i class="fas fa-plus"></i> New Booking
+            <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1 shadow transition whitespace-nowrap">
+                <i class="fas fa-plus"></i> New
             </button>
         </div>
 
-        <!-- Summary Cards Grid -->
-        <div class="grid grid-cols-3 gap-2 text-center">
-            <div onclick="toggleActiveFilter()" class="bg-indigo-50 dark:bg-slate-800 p-2.5 rounded-xl border border-indigo-100 dark:border-slate-700 shadow-sm cursor-pointer active:scale-95 transition">
-                <div class="text-lg font-bold text-indigo-900 dark:text-indigo-300" id="statBookings">0</div>
-                <div class="text-[10px] text-indigo-700 dark:text-indigo-400 font-bold uppercase underline" id="activeCardLabel">ACTIVE BOOKINGS</div>
+        <!-- 5 Extremely Small Square Gradient Cards -->
+        <div class="grid grid-cols-3 gap-1.5 text-white">
+            <!-- Card 1: Active Bookings -->
+            <div onclick="toggleActiveFilter()" class="bg-gradient-to-br from-indigo-600 to-indigo-800 p-2 rounded-lg shadow cursor-pointer active:scale-95 transition flex flex-col justify-between aspect-square">
+                <div class="flex justify-between items-start">
+                    <i class="fas fa-calendar-check text-indigo-200 text-[10px]"></i>
+                    <span class="text-[7px] bg-indigo-500/40 px-1 py-0 rounded font-bold">Active</span>
+                </div>
+                <div>
+                    <div class="text-base font-extrabold tracking-tight leading-none" id="statBookings">0</div>
+                    <div class="text-[8px] font-bold text-indigo-200 uppercase mt-0.5 truncate">Active</div>
+                </div>
             </div>
 
-            <div onclick="openMonthSitesModal()" class="bg-blue-50 dark:bg-slate-800 p-2.5 rounded-xl border border-blue-100 dark:border-slate-700 shadow-sm cursor-pointer active:scale-95 transition">
-                <div class="text-lg font-bold text-blue-900 dark:text-blue-300" id="statThisMonthSites">0</div>
-                <div class="text-[10px] text-blue-700 dark:text-blue-400 font-bold uppercase underline" id="monthCardLabel">THIS MONTH</div>
+            <!-- Card 2: This Month Bookings -->
+            <div onclick="toggleMonthFilter()" class="bg-gradient-to-br from-emerald-600 to-teal-800 p-2 rounded-lg shadow cursor-pointer active:scale-95 transition flex flex-col justify-between aspect-square">
+                <div class="flex justify-between items-start">
+                    <i class="fas fa-calendar-alt text-emerald-200 text-[10px]"></i>
+                    <span class="text-[7px] bg-emerald-500/40 px-1 py-0 rounded font-bold">Month</span>
+                </div>
+                <div>
+                    <div class="text-base font-extrabold tracking-tight leading-none" id="statThisMonth">0</div>
+                    <div class="text-[8px] font-bold text-emerald-100 uppercase mt-0.5 truncate">This Month</div>
+                </div>
             </div>
 
-            <div onclick="openClashesModal()" class="bg-amber-50 dark:bg-slate-800 p-2.5 rounded-xl border border-amber-200 dark:border-slate-700 shadow-sm cursor-pointer active:scale-95 transition">
-                <div class="text-lg font-bold text-amber-900 dark:text-amber-300" id="statClashes">0</div>
-                <div class="text-[10px] text-amber-800 dark:text-amber-400 font-bold uppercase underline">CLASHES</div>
+            <!-- Card 3: Matching Date (Same Date Clashes) -->
+            <div onclick="openMatchingSitesModal()" class="bg-gradient-to-br from-blue-600 to-cyan-700 p-2 rounded-lg shadow cursor-pointer active:scale-95 transition flex flex-col justify-between aspect-square">
+                <div class="flex justify-between items-start">
+                    <i class="fas fa-calendar-day text-cyan-200 text-[10px]"></i>
+                    <span class="text-[7px] bg-cyan-500/40 px-1 py-0 rounded font-bold">Clash</span>
+                </div>
+                <div>
+                    <div class="text-base font-extrabold tracking-tight leading-none" id="statMatchingDates">0</div>
+                    <div class="text-[8px] font-bold text-cyan-100 uppercase mt-0.5 truncate">Matching Date</div>
+                </div>
+            </div>
+
+            <!-- Card 4: All Bookings -->
+            <div onclick="resetAllBookingsView()" class="bg-gradient-to-br from-purple-600 to-pink-700 p-2 rounded-lg shadow cursor-pointer active:scale-95 transition flex flex-col justify-between aspect-square">
+                <div class="flex justify-between items-start">
+                    <i class="fas fa-database text-purple-200 text-[10px]"></i>
+                    <span class="text-[7px] bg-purple-500/40 px-1 py-0 rounded font-bold">Total</span>
+                </div>
+                <div>
+                    <div class="text-base font-extrabold tracking-tight leading-none" id="statAllBookings">0</div>
+                    <div class="text-[8px] font-bold text-purple-100 uppercase mt-0.5 truncate">All Bookings</div>
+                </div>
+            </div>
+
+            <!-- Card 5: Trash Bin -->
+            <div onclick="openSettingsModal()" class="bg-gradient-to-br from-slate-700 to-slate-900 p-2 rounded-lg shadow cursor-pointer active:scale-95 transition flex flex-col justify-between aspect-square">
+                <div class="flex justify-between items-start">
+                    <i class="fas fa-trash text-slate-300 text-[10px]"></i>
+                    <span class="text-[7px] bg-slate-600 px-1 py-0 rounded font-bold">Trash</span>
+                </div>
+                <div>
+                    <div class="text-base font-extrabold tracking-tight leading-none" id="statTrashCount">0</div>
+                    <div class="text-[8px] font-bold text-slate-300 uppercase mt-0.5 truncate">Trash Bin</div>
+                </div>
             </div>
         </div>
 
-        <!-- Sync Status & Back to All Bookings Option -->
+        <!-- Sync Status & Back Option -->
         <div class="flex justify-between items-center px-1">
-            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
+            <span class="text-[11px] font-bold text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
                 <span id="listHeadingLabel">Bookings List (Latest First)</span>
-                <button id="resetFilterBtn" onclick="resetAllBookingsView()" class="hidden text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-full font-bold shadow">Show All ↺</button>
+                <button id="resetFilterBtn" onclick="resetAllBookingsView()" class="hidden text-[9px] bg-indigo-600 text-white px-2 py-0.5 rounded-full font-bold shadow">Show All ↺</button>
             </span>
-            <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400" id="syncStatus">Connecting to Server...</span>
+            <span class="text-[9px] font-semibold text-slate-500 dark:text-slate-400" id="syncStatus">Connecting...</span>
         </div>
 
         <!-- Booking Cards Container -->
-        <div id="bookingCardsContainer" class="space-y-2.5"></div>
+        <div id="bookingCardsContainer" class="space-y-2"></div>
 
     </main>
 
@@ -123,7 +168,7 @@
     <div id="editModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden max-h-[90vh] flex flex-col">
             <div class="bg-amber-700 text-white px-5 py-3.5 flex justify-between items-center">
-                <h3 class="font-bold text-base"><i class="fas fa-edit mr-1.5"></i> Edit Customer Booking Details</h3>
+                <h3 class="font-bold text-base"><i class="fas fa-edit mr-1.5"></i> Edit Booking Details</h3>
                 <button onclick="closeEditModal()" class="text-amber-100 hover:text-white text-xl">&times;</button>
             </div>
             <form id="fullEditForm" onsubmit="saveFullEditedBooking(event)" class="p-4 space-y-3 overflow-y-auto flex-1 text-xs">
@@ -328,7 +373,6 @@
             </div>
         </div>
 
-        <!-- Pen Control Tools -->
         <div class="flex items-center justify-between bg-slate-800 p-2 my-2 rounded-xl text-xs text-white border border-slate-700">
             <div class="flex items-center gap-2">
                 <span class="text-[10px] font-bold text-slate-400">Color:</span>
@@ -348,37 +392,33 @@
         </div>
     </div>
 
-    <!-- Month Sites Filter Modal -->
-    <div id="monthSitesModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <!-- Matching Date Breakdown Modal with Tabs & Date Selector -->
+    <div id="matchingSitesModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden max-h-[85vh] flex flex-col">
             <div class="bg-blue-700 text-white px-4 py-3 flex justify-between items-center">
-                <h3 class="font-bold text-sm"><i class="fas fa-calendar-alt mr-1.5"></i> This Month Sites Filter</h3>
-                <button onclick="closeMonthSitesModal()" class="text-blue-100 hover:text-white text-xl">&times;</button>
+                <h3 class="font-bold text-sm"><i class="fas fa-calendar-day mr-1.5"></i> Matching Date & Manpower</h3>
+                <button onclick="closeMatchingSitesModal()" class="text-blue-100 hover:text-white text-xl">&times;</button>
             </div>
-            <div class="p-3 bg-blue-50 dark:bg-slate-700 border-b dark:border-slate-600 flex items-center justify-between gap-2">
-                <input type="month" id="filterMonthInput" onchange="filterMonthSites()" class="border border-blue-300 dark:border-slate-600 rounded-lg p-1 text-xs bg-white dark:bg-slate-800 font-semibold outline-none">
-                <span class="text-xs font-bold text-blue-900 dark:text-blue-200 bg-blue-100 dark:bg-blue-900/50 px-2.5 py-1 rounded-lg border dark:border-slate-600" id="monthSiteCountLabel">Total: 0</span>
-            </div>
-            <div class="p-3 overflow-y-auto flex-1 space-y-2 text-xs" id="monthSitesContainer"></div>
-        </div>
-    </div>
 
-    <!-- Clashes & Manpower Modal -->
-    <div id="clashesModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden max-h-[85vh] flex flex-col">
-            <div class="bg-amber-600 text-white px-4 py-3 flex justify-between items-center">
-                <h3 class="font-bold text-sm"><i class="fas fa-layer-group mr-1.5"></i> Date Clashes & Staff</h3>
-                <button onclick="closeClashesModal()" class="text-amber-100 hover:text-white text-xl">&times;</button>
-            </div>
+            <!-- Tabs: Active vs Deactive -->
             <div class="flex border-b dark:border-slate-600 bg-slate-100 dark:bg-slate-700">
-                <button onclick="switchClashTab('coming')" id="tabComing" class="flex-1 py-2 text-xs font-bold text-indigo-700 dark:text-indigo-300 border-b-2 border-indigo-600 bg-white dark:bg-slate-800">
-                    Coming Soon (<span id="countComing">0</span>)
+                <button onclick="switchMatchingTab('active')" id="matchingTabActive" class="flex-1 py-2 text-xs font-bold text-blue-700 dark:text-blue-300 border-b-2 border-blue-600 bg-white dark:bg-slate-800">
+                    🟢 Active Matching (<span id="countMatchingActive">0</span>)
                 </button>
-                <button onclick="switchClashTab('completed')" id="tabCompleted" class="flex-1 py-2 text-xs font-bold text-slate-500 dark:text-slate-400">
-                    Completed (<span id="countCompleted">0</span>)
+                <button onclick="switchMatchingTab('deactive')" id="matchingTabDeactive" class="flex-1 py-2 text-xs font-bold text-slate-500 dark:text-slate-400">
+                    ⚪ Deactive / Past (<span id="countMatchingDeactive">0</span>)
                 </button>
             </div>
-            <div class="p-3 overflow-y-auto flex-1 space-y-3 text-xs" id="clashDetailsContainer"></div>
+
+            <!-- Date Selector with Default All -->
+            <div class="p-3 bg-blue-50 dark:bg-slate-700 border-b dark:border-slate-600 flex items-center justify-between gap-2">
+                <select id="filterMatchingDateSelect" onchange="renderMatchingSitesModalContent()" class="border border-blue-300 dark:border-slate-600 rounded-lg p-1.5 text-xs bg-white dark:bg-slate-800 font-semibold outline-none flex-1">
+                    <option value="ALL">📅 All Dates (Default)</option>
+                </select>
+                <span class="text-xs font-bold text-blue-900 dark:text-blue-200 bg-blue-100 dark:bg-blue-900/50 px-2.5 py-1 rounded-lg border dark:border-slate-600" id="matchingSiteCountLabel">Dates: 0</span>
+            </div>
+
+            <div class="p-3 overflow-y-auto flex-1 space-y-3 text-xs" id="matchingSitesContainer"></div>
         </div>
     </div>
 
@@ -405,11 +445,9 @@
         const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbw9REJnBxYe99GxcifX8pZ4Qp2c3l5hMOk_1HWDFbMW-RM2zAZMeBtZ7hHR7BV65y93/exec";
         let bookings = [];
         let customerIDMap = {};
-        let currentClashTab = 'coming';
-        let globalComingDates = [];
-        let globalCompletedDates = [];
-        let globalDateGroups = {};
         let activeFilterOnly = false;
+        let monthFilterOnly = false;
+        let currentMatchingTab = 'active';
 
         let currentColor = '#1e1b4b';
         let currentLineWidth = 3;
@@ -425,18 +463,21 @@
             initPullToRefresh();
         };
 
+        function getLocalDateString(dateObj = new Date()) {
+            const year = dateObj.getFullYear();
+            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         function applyGlobalThemeAndBranding() {
             if(localStorage.getItem('abcd_dark_mode') === 'true') {
                 document.documentElement.classList.add('dark');
             }
             const sName = localStorage.getItem('abcd_studio_name');
             const sSub = localStorage.getItem('abcd_studio_tagline');
-            if(sName) {
-                document.getElementById('headerTitle').innerText = `🎬 ${sName}`;
-            }
-            if(sSub) {
-                document.getElementById('headerSubtitle').innerText = sSub;
-            }
+            if(sName) document.getElementById('headerTitle').innerText = `🎬 ${sName}`;
+            if(sSub) document.getElementById('headerSubtitle').innerText = sSub;
         }
 
         function setBottomNavVisibility(isHidden) {
@@ -518,19 +559,16 @@
         }
 
         function getName(b) { return b['Name'] || b['Name '] || b.Name || b.name || 'N/A'; }
-        
         function getDate(b) {
             let dateStr = String(b.Date || b.date || '');
             return dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
         }
-
         function cleanDateOnly(raw) {
             if(!raw) return '';
             let s = String(raw);
             if(s.includes('T')) s = s.split('T')[0];
             return s.trim();
         }
-
         function getEvent(b) { return b.Event || b.event || '-'; }
         function getMobile(b) { return b.Mobile || b.mobile || ''; }
         function getLocation(b) { return b.Location || b.location || '-'; }
@@ -548,9 +586,7 @@
             if(s.startsWith('data:image')) return s;
             if(s.includes('drive.google.com')) {
                 let match = s.match(/\/d\/([a-zA-Z0-9_-]+)/) || s.match(/id=([a-zA-Z0-9_-]+)/);
-                if(match && match[1]) {
-                    return `https://lh3.googleusercontent.com/d/${match[1]}`;
-                }
+                if(match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
             }
             return s;
         }
@@ -576,30 +612,29 @@
         }
 
         function fetchFromServer() {
-            document.getElementById('syncStatus').innerText = "Syncing Server...";
+            document.getElementById('syncStatus').innerText = "Syncing...";
             fetch(GOOGLE_SHEET_URL, { redirect: "follow" })
                 .then(res => res.json())
                 .then(data => {
                     bookings = data;
                     checkAndUpdatePastStatuses();
                     processAndRender();
-                    document.getElementById('syncStatus').innerText = "✔️ Live Server Connected";
-                    document.getElementById('syncStatus').className = "text-[11px] text-emerald-600 font-semibold";
+                    document.getElementById('syncStatus').innerText = "✔️ Connected";
+                    document.getElementById('syncStatus').className = "text-[9px] text-emerald-600 font-semibold";
                 })
                 .catch(err => {
-                    document.getElementById('syncStatus').innerText = "⚠️ Server Sync Error";
-                    document.getElementById('syncStatus').className = "text-[11px] text-red-500 font-semibold";
+                    document.getElementById('syncStatus').innerText = "⚠️ Sync Error";
+                    document.getElementById('syncStatus').className = "text-[9px] text-red-500 font-semibold";
                 });
         }
 
         function checkAndUpdatePastStatuses() {
-            const todayStr = new Date().toISOString().split('T')[0];
+            const todayStr = getLocalDateString();
             bookings.forEach(b => {
                 if(getStatus(b) !== 'DELETED') {
                     const bDate = getDate(b);
                     if(bDate && bDate < todayStr && getStatus(b) === 'ACTIVE') {
                         b.Status = 'DEACTIVE';
-                        // Automatically sync status change to Google Sheet column
                         fetch(GOOGLE_SHEET_URL, {
                             method: "POST", mode: "no-cors",
                             headers: { "Content-Type": "application/json" },
@@ -610,23 +645,31 @@
             });
         }
 
-        function applySmoothSearch() { 
+        function applyUniversalSearch() { 
             processAndRender(); 
         }
 
         function toggleActiveFilter() {
             activeFilterOnly = !activeFilterOnly;
+            monthFilterOnly = false;
             const resetBtn = document.getElementById('resetFilterBtn');
-            if(activeFilterOnly) {
-                resetBtn.classList.remove('hidden');
-            } else {
-                resetBtn.classList.add('hidden');
-            }
+            if(activeFilterOnly) resetBtn.classList.remove('hidden');
+            else resetBtn.classList.add('hidden');
+            processAndRender();
+        }
+
+        function toggleMonthFilter() {
+            monthFilterOnly = !monthFilterOnly;
+            activeFilterOnly = false;
+            const resetBtn = document.getElementById('resetFilterBtn');
+            if(monthFilterOnly) resetBtn.classList.remove('hidden');
+            else resetBtn.classList.add('hidden');
             processAndRender();
         }
 
         function resetAllBookingsView() {
             activeFilterOnly = false;
+            monthFilterOnly = false;
             document.getElementById('resetFilterBtn').classList.add('hidden');
             document.getElementById('searchInput').value = '';
             processAndRender();
@@ -640,50 +683,50 @@
         }
 
         function processAndRender() {
-            const todayStr = new Date().toISOString().split('T')[0];
-            const currentYearMonth = todayStr.substring(0, 7);
+            const todayStr = getLocalDateString();
+            const currentMonthStr = todayStr.substring(0, 7);
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
 
             let activeList = bookings.filter(b => getStatus(b) !== 'DELETED');
 
-            // Active count calculation (Date >= Today & Status != DEACTIVE)
             const trueActiveList = activeList.filter(b => getDate(b) >= todayStr && getStatus(b) !== 'DEACTIVE');
-            document.getElementById('statBookings').innerText = trueActiveList.length;
-
-            let thisMonthCount = activeList.filter(b => {
-                let d = getDate(b);
-                return d && d.startsWith(currentYearMonth);
-            }).length;
-            document.getElementById('statThisMonthSites').innerText = thisMonthCount;
-
+            const thisMonthList = activeList.filter(b => getDate(b).startsWith(currentMonthStr));
+            
+            // Calculate matching date count (dates having > 1 booking)
             let dateCounts = {};
             activeList.forEach(b => {
-                const d = getDate(b);
+                let d = getDate(b);
                 if(d) dateCounts[d] = (dateCounts[d] || 0) + 1;
             });
-            let clashCount = 0;
-            Object.values(dateCounts).forEach(c => { if(c > 1) clashCount += c; });
-            document.getElementById('statClashes').innerText = clashCount;
+            let matchingDateCount = 0;
+            Object.keys(dateCounts).forEach(d => {
+                if(dateCounts[d] > 1) matchingDateCount += dateCounts[d];
+            });
 
-            // Apply Active Filter Click
+            const trashList = bookings.filter(b => getStatus(b) === 'DELETED');
+
+            document.getElementById('statBookings').innerText = trueActiveList.length;
+            document.getElementById('statThisMonth').innerText = thisMonthList.length;
+            document.getElementById('statMatchingDates').innerText = matchingDateCount;
+            document.getElementById('statAllBookings').innerText = activeList.length;
+            document.getElementById('statTrashCount').innerText = trashList.length;
+
             if(activeFilterOnly) {
                 activeList = trueActiveList;
                 document.getElementById('listHeadingLabel').innerText = "Filtered: ACTIVE Bookings";
+                document.getElementById('resetFilterBtn').classList.remove('hidden');
+            } else if(monthFilterOnly) {
+                activeList = thisMonthList;
+                document.getElementById('listHeadingLabel').innerText = `Filtered: This Month (${currentMonthStr})`;
                 document.getElementById('resetFilterBtn').classList.remove('hidden');
             } else {
                 document.getElementById('listHeadingLabel').innerText = "Bookings List (Latest First)";
             }
 
-            // Real-time Text Search Filter
             if(searchVal) {
                 activeList = activeList.filter(b => {
-                    return getCustomerID(b).toLowerCase().includes(searchVal) ||
-                           getName(b).toLowerCase().includes(searchVal) ||
-                           getMobile(b).toLowerCase().includes(searchVal) ||
-                           getDate(b).toLowerCase().includes(searchVal) ||
-                           getLocation(b).toLowerCase().includes(searchVal) ||
-                           getEvent(b).toLowerCase().includes(searchVal) ||
-                           getNote(b).toLowerCase().includes(searchVal);
+                    let searchableString = Object.values(b).join(' ').toLowerCase() + ' ' + getCustomerID(b).toLowerCase() + ' ' + getStatus(b).toLowerCase();
+                    return searchableString.includes(searchVal);
                 });
             }
 
@@ -697,7 +740,7 @@
             container.innerHTML = '';
 
             if(!list || list.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-slate-400 font-medium text-xs bg-white dark:bg-slate-800 rounded-xl shadow-sm border dark:border-slate-700">No bookings found.</div>`;
+                container.innerHTML = `<div class="p-5 text-center text-slate-400 font-medium text-xs bg-white dark:bg-slate-800 rounded-xl shadow-sm border dark:border-slate-700">No bookings found.</div>`;
                 return;
             }
 
@@ -707,7 +750,7 @@
                 const isUpcoming = bDate >= todayStr && getStatus(b) !== 'DEACTIVE';
 
                 const card = document.createElement('div');
-                card.className = "bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-3 shadow-sm hover:shadow transition active:scale-[0.99] cursor-pointer relative";
+                card.className = "bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-2.5 shadow-sm hover:shadow transition active:scale-[0.99] cursor-pointer relative";
                 card.onclick = function(e) {
                     if(e.target.closest('button')) return;
                     openDetailModal(b);
@@ -719,24 +762,24 @@
                 const dispLoc = highlightMatch(getLocation(b), searchVal);
 
                 card.innerHTML = `
-                    <div class="flex justify-between items-start mb-1.5">
+                    <div class="flex justify-between items-start mb-1">
                         <div class="flex items-center gap-1.5">
-                            <span class="bg-indigo-600 text-white font-bold text-xs px-2 py-0.5 rounded-md">${dispEvent}</span>
-                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><i class="far fa-calendar-alt text-indigo-500 mr-1"></i>Date: ${dispDate}</span>
+                            <span class="bg-indigo-600 text-white font-bold text-[10px] px-1.5 py-0.2 rounded">${dispEvent}</span>
+                            <span class="text-[11px] font-bold text-slate-700 dark:text-slate-300"><i class="far fa-calendar-alt text-indigo-500 mr-1"></i>${dispDate}</span>
                         </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isUpcoming ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border dark:border-slate-600'}">
+                        <span class="text-[9px] font-bold px-2 py-0.2 rounded-full ${isUpcoming ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border dark:border-slate-600'}">
                             ${isUpcoming ? '🟢 Active' : '⚪ Deactive'}
                         </span>
                     </div>
 
-                    <div class="flex justify-between items-end border-t dark:border-slate-700 pt-2 mt-1">
+                    <div class="flex justify-between items-end border-t dark:border-slate-700 pt-1.5 mt-1">
                         <div>
-                            <div class="font-bold text-slate-900 dark:text-white text-sm">${dispName}</div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400"><i class="fas fa-map-marker-alt text-red-400 mr-1"></i>${dispLoc}</div>
+                            <div class="font-bold text-slate-900 dark:text-white text-xs">${dispName}</div>
+                            <div class="text-[10px] text-slate-500 dark:text-slate-400"><i class="fas fa-map-marker-alt text-red-400 mr-1"></i>${dispLoc}</div>
                         </div>
                         <div class="text-right">
-                            <div class="text-xs font-bold text-slate-900 dark:text-white">₹${getTotal(b).toLocaleString()}</div>
-                            <div class="text-[11px] font-bold text-red-600">Baki: ₹${getBaki(b).toLocaleString()}</div>
+                            <div class="text-[11px] font-bold text-slate-900 dark:text-white">₹${getTotal(b).toLocaleString()}</div>
+                            <div class="text-[10px] font-bold text-red-600">Baki: ₹${getBaki(b).toLocaleString()}</div>
                         </div>
                     </div>
                 `;
@@ -745,7 +788,7 @@
         }
 
         function openDetailModal(b) {
-            setBottomNavVisibility(true); // hide bottom nav
+            setBottomNavVisibility(true);
             document.getElementById('detailModal').classList.remove('hidden');
             const sigLink = getSigLink(b);
             const slipLink = getSlipLink(b);
@@ -757,13 +800,9 @@
             for (let key in b) {
                 if (b.hasOwnProperty(key)) {
                     let lKey = key.toLowerCase();
-                    if(lKey.includes('sign') || lKey.includes('sig') || lKey.includes('slip') || lKey.includes('photo') || lKey.includes('image')) {
-                        continue;
-                    }
+                    if(lKey.includes('sign') || lKey.includes('sig') || lKey.includes('slip') || lKey.includes('photo') || lKey.includes('image')) continue;
                     let val = b[key];
-                    if(lKey.includes('date') || lKey.includes('time') || lKey.includes('submit')) {
-                        val = cleanDateOnly(val);
-                    }
+                    if(lKey.includes('date') || lKey.includes('time') || lKey.includes('submit')) val = cleanDateOnly(val);
                     rawDetailsHtml += `<div class="flex justify-between py-1 border-b border-slate-100 dark:border-slate-700 text-[11px]">
                         <span class="font-bold text-slate-500 dark:text-slate-400">${key}:</span>
                         <span class="text-slate-800 dark:text-slate-200 font-semibold text-right">${val}</span>
@@ -771,22 +810,14 @@
                 }
             }
 
-            let sigImageHtml = `<div class="bg-white dark:bg-slate-800 p-2 rounded-lg border dark:border-slate-700 text-center">
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1"><i class="fas fa-signature text-blue-600"></i> Staff Signature</label>`;
-            if(sigLink && sigLink.length > 5) {
-                sigImageHtml += `<img src="${sigLink}" alt="Signature" class="max-h-32 mx-auto rounded border shadow-sm object-contain bg-slate-50 dark:bg-slate-700 p-1">`;
-            } else {
-                sigImageHtml += `<span class="text-[11px] text-slate-400 italic">No signature uploaded</span>`;
-            }
+            let sigImageHtml = `<div class="bg-white dark:bg-slate-800 p-2 rounded-lg border dark:border-slate-700 text-center"><label class="block text-[10px] font-bold text-slate-500 mb-1"><i class="fas fa-signature text-blue-600"></i> Signature</label>`;
+            if(sigLink && sigLink.length > 5) sigImageHtml += `<img src="${sigLink}" alt="Signature" class="max-h-24 mx-auto rounded border bg-slate-50 p-1 object-contain">`;
+            else sigImageHtml += `<span class="text-[10px] text-slate-400 italic">No signature</span>`;
             sigImageHtml += `</div>`;
 
-            let slipImageHtml = `<div class="bg-white dark:bg-slate-800 p-2 rounded-lg border dark:border-slate-700 text-center">
-                <label class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1"><i class="fas fa-file-image text-purple-600"></i> Physical Slip Photo</label>`;
-            if(slipLink && slipLink.length > 5) {
-                slipImageHtml += `<img src="${slipLink}" alt="Physical Slip" class="max-h-64 w-full object-contain mx-auto rounded border shadow-sm bg-slate-50 dark:bg-slate-700 p-1">`;
-            } else {
-                slipImageHtml += `<span class="text-[11px] text-slate-400 italic">No slip photo uploaded</span>`;
-            }
+            let slipImageHtml = `<div class="bg-white dark:bg-slate-800 p-2 rounded-lg border dark:border-slate-700 text-center"><label class="block text-[10px] font-bold text-slate-500 mb-1"><i class="fas fa-file-image text-purple-600"></i> Slip Photo</label>`;
+            if(slipLink && slipLink.length > 5) slipImageHtml += `<img src="${slipLink}" alt="Slip" class="max-h-48 w-full object-contain mx-auto rounded border bg-slate-50 p-1">`;
+            else slipImageHtml += `<span class="text-[10px] text-slate-400 italic">No slip photo</span>`;
             slipImageHtml += `</div>`;
 
             const container = document.getElementById('detailModalContent');
@@ -794,37 +825,31 @@
                 <div class="bg-slate-50 dark:bg-slate-700/50 p-3.5 rounded-xl border dark:border-slate-600 space-y-3">
                     <div class="flex justify-between items-center border-b dark:border-slate-600 pb-1.5">
                         <span class="font-mono bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 text-[11px] px-2 py-0.5 rounded font-bold">ID: ${custId}</span>
-                        <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-slate-800 px-2.5 py-1 rounded border border-indigo-200 dark:border-slate-600">📅 Event Date: ${eventDate}</span>
+                        <span class="text-[11px] font-bold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-slate-800 px-2 py-1 rounded border">📅 Date: ${eventDate}</span>
                     </div>
-
                     <div>
                         <h4 class="text-sm font-bold text-slate-900 dark:text-white">${bName}</h4>
                         <div class="text-xs text-slate-600 dark:text-slate-300 mt-0.5"><i class="fas fa-phone-alt mr-1 text-emerald-600"></i>${getMobile(b) || 'N/A'}</div>
                     </div>
-
                     <div class="bg-white dark:bg-slate-800 p-3 rounded-lg border dark:border-slate-600 space-y-1">
-                        <div class="text-[10px] font-bold text-indigo-900 dark:text-indigo-300 uppercase mb-1 border-b dark:border-slate-700 pb-1">Customer & Booking Information:</div>
+                        <div class="text-[10px] font-bold text-indigo-900 dark:text-indigo-300 uppercase mb-1 border-b pb-1">Details:</div>
                         ${rawDetailsHtml}
                     </div>
-
-                    <div class="grid grid-cols-3 gap-1 bg-indigo-50/50 dark:bg-slate-800 p-2 rounded-lg border dark:border-slate-600 text-center text-xs">
-                        <div><b>Total Package</b><br>₹${getTotal(b).toLocaleString()}</div>
-                        <div><b>Advance Paid</b><br>₹${getAdvance(b).toLocaleString()}</div>
-                        <div><b>Remaining Baki</b><br><span class="text-red-600 font-bold">₹${getBaki(b).toLocaleString()}</span></div>
+                    <div class="grid grid-cols-3 gap-1 bg-indigo-50/50 dark:bg-slate-800 p-2 rounded-lg border text-center text-xs">
+                        <div><b>Total</b><br>₹${getTotal(b).toLocaleString()}</div>
+                        <div><b>Advance</b><br>₹${getAdvance(b).toLocaleString()}</div>
+                        <div><b>Baki</b><br><span class="text-red-600 font-bold">₹${getBaki(b).toLocaleString()}</span></div>
                     </div>
-
-                    <div class="space-y-2 border-t dark:border-slate-600 pt-2">
+                    <div class="space-y-2 border-t pt-2">
                         ${sigImageHtml}
                         ${slipImageHtml}
                     </div>
-
-                    <!-- 2 CLEAR OPTIONS ON VIEW: EDIT & DELETE -->
-                    <div class="pt-2 border-t dark:border-slate-600 flex justify-between gap-2">
-                        <button onclick="closeDetailModal(); deleteBooking('${custId}', '${bName}', '${eventDate}');" class="bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/50 dark:text-red-300 px-3 py-2 rounded-lg text-xs font-bold shadow flex items-center gap-1">
-                            <i class="fas fa-trash"></i> Delete This Booking
+                    <div class="pt-2 border-t flex justify-between gap-2">
+                        <button onclick="closeDetailModal(); deleteBooking('${custId}', '${bName.replace(/'/g, "\\'")}', '${eventDate}');" class="bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-lg text-xs font-bold shadow flex items-center gap-1">
+                            <i class="fas fa-trash"></i> Delete
                         </button>
-                        <button onclick="closeDetailModal(); openEditModal('${custId}', '${bName}', '${eventDate}');" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow flex items-center gap-1">
-                            <i class="fas fa-edit"></i> Edit Booking Details
+                        <button onclick="closeDetailModal(); openEditModal('${custId}', '${bName.replace(/'/g, "\\'")}', '${eventDate}');" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow flex items-center gap-1">
+                            <i class="fas fa-edit"></i> Edit
                         </button>
                     </div>
                 </div>
@@ -832,7 +857,7 @@
         }
         function closeDetailModal() { 
             document.getElementById('detailModal').classList.add('hidden'); 
-            setBottomNavVisibility(false); // show bottom nav
+            setBottomNavVisibility(false);
         }
 
         function openEditModal(custId, name, date) {
@@ -842,14 +867,12 @@
 
             document.getElementById('editCustId').value = custId;
             document.getElementById('editOriginalDate').value = date;
-            
             document.getElementById('editName').value = getName(target);
             document.getElementById('editMobile').value = getMobile(target);
             document.getElementById('editEventDate').value = getDate(target);
             document.getElementById('editLocation').value = getLocation(target);
             document.getElementById('editEvent').value = getEvent(target);
             document.getElementById('editCamera').value = getCamera(target);
-            
             document.getElementById('editTotal').value = getTotal(target);
             document.getElementById('editAdvance').value = getAdvance(target);
             document.getElementById('editAlbum').value = getAlbum(target);
@@ -862,8 +885,7 @@
         function calcEditBaki() {
             const tot = parseFloat(document.getElementById('editTotal').value) || 0;
             const adv = parseFloat(document.getElementById('editAdvance').value) || 0;
-            const baki = Math.max(0, tot - adv);
-            document.getElementById('editBakiText').innerText = `₹${baki.toLocaleString()}`;
+            document.getElementById('editBakiText').innerText = `₹${Math.max(0, tot - adv).toLocaleString()}`;
         }
 
         function closeEditModal() { 
@@ -879,7 +901,6 @@
 
             const custId = document.getElementById('editCustId').value;
             const origDate = document.getElementById('editOriginalDate').value;
-
             let target = bookings.find(b => getCustomerID(b) === custId && getDate(b) === origDate);
             if(target) {
                 const name = document.getElementById('editName').value.trim();
@@ -932,42 +953,38 @@
             const trashList = bookings.filter(b => getStatus(b) === 'DELETED');
             const countLabel = document.getElementById('settingsTrashCount');
             if(countLabel) countLabel.innerText = `${trashList.length} Items`;
-            
             const container = document.getElementById('trashListContainer');
             if(!container) return;
             container.innerHTML = '';
-
             if(trashList.length === 0) {
                 container.innerHTML = `<div class="text-center text-slate-400 p-3">Trash bin is empty.</div>`;
                 return;
             }
-
             trashList.forEach(b => {
                 const item = document.createElement('div');
-                item.className = "bg-white dark:bg-slate-800 p-2 rounded border dark:border-slate-700 flex justify-between items-center text-xs";
+                item.className = "bg-white dark:bg-slate-800 p-2 rounded border flex justify-between items-center text-xs";
                 item.innerHTML = `
-                    <div>
-                        <b>${getName(b)}</b> (${getDate(b)})<br>
-                        <span class="text-slate-400 font-mono text-[10px]">${getCustomerID(b)}</span>
-                    </div>
-                    <button onclick="restoreBooking('${getCustomerID(b)}', '${getName(b)}', '${getDate(b)}')" class="bg-emerald-100 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded font-bold">Restore</button>
+                    <div><b>${getName(b)}</b> (${getDate(b)})<br><span class="text-slate-400 text-[10px]">${getCustomerID(b)}</span></div>
+                    <button onclick="restoreBooking('${getCustomerID(b)}', '${getName(b).replace(/'/g, "\\'")}', '${getDate(b)}')" class="bg-emerald-100 text-emerald-700 px-2 py-1 rounded font-bold">Restore</button>
                 `;
                 container.appendChild(item);
             });
         }
 
         function deleteBooking(uid, name, date) {
-            if(!confirm(`Are you sure you want to move booking for ${name} on ${date} to Trash?`)) return;
-            let target = bookings.find(b => getCustomerID(b) === uid && getDate(b) === date);
+            if(!confirm(`Move booking for ${name} on ${date} to Trash?`)) return;
+            let target = bookings.find(b => (getCustomerID(b) === uid || getName(b) === name) && getDate(b) === date);
             if(target) {
                 target.Status = "DELETED";
-                processAndRender();
-                fetch(GOOGLE_SHEET_URL, {
-                    method: "POST", mode: "no-cors",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ action: "status", uid: uid, name: name, date: date, status: "DELETED" })
-                }).then(() => setTimeout(fetchFromServer, 1500));
+            } else {
+                bookings = bookings.filter(b => !(getName(b) === name && getDate(b) === date));
             }
+            processAndRender();
+            fetch(GOOGLE_SHEET_URL, {
+                method: "POST", mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "status", uid: uid, name: name, date: date, status: "DELETED" })
+            }).then(() => setTimeout(fetchFromServer, 1500));
         }
 
         function restoreBooking(uid, name, date) {
@@ -988,7 +1005,6 @@
             const warningBox = dateInput.closest('.event-row').querySelector('.clash-warning');
             const warningText = warningBox.querySelector('.warning-text');
             if(!selectedDate) { warningBox.classList.add('hidden'); return; }
-
             const activeBookings = bookings.filter(b => getStatus(b) !== 'DELETED');
             const matched = activeBookings.filter(b => getDate(b) === selectedDate);
             if(matched.length > 0) {
@@ -1023,37 +1039,30 @@
         function addEventRow() {
             const container = document.getElementById('eventRowsContainer');
             const row = document.createElement('div');
-            row.className = "event-row bg-slate-50 dark:bg-slate-700/50 border dark:border-slate-600 p-2.5 rounded-xl space-y-2";
+            row.className = "event-row bg-slate-50 dark:bg-slate-700/50 border p-2.5 rounded-xl space-y-2";
             row.innerHTML = `
                 <div class="grid grid-cols-12 gap-1.5 items-center">
                     <div class="col-span-4">
-                        <label class="block text-[9px] font-bold text-slate-500 dark:text-slate-400">Date</label>
-                        <input type="date" required onchange="checkDateClash(this)" class="event-date w-full border dark:border-slate-600 dark:bg-slate-700 rounded p-1 text-xs outline-none">
+                        <label class="block text-[9px] font-bold text-slate-500">Date</label>
+                        <input type="date" required onchange="checkDateClash(this)" class="event-date w-full border rounded p-1 text-xs outline-none">
                     </div>
                     <div class="col-span-3">
-                        <label class="block text-[9px] font-bold text-slate-500 dark:text-slate-400">Event</label>
-                        <select onchange="toggleManualEvent(this)" class="event-type w-full border dark:border-slate-600 dark:bg-slate-700 rounded p-1 text-xs outline-none">
-                            <option value="Shadi">Shadi</option>
-                            <option value="Tilak">Tilak</option>
-                            <option value="Haldi">Haldi</option>
-                            <option value="Bidai">Bidai</option>
-                            <option value="Sagai">Sagai</option>
-                            <option value="Birthday">Birthday</option>
-                            <option value="MANUAL">Manual...</option>
+                        <label class="block text-[9px] font-bold text-slate-500">Event</label>
+                        <select onchange="toggleManualEvent(this)" class="event-type w-full border rounded p-1 text-xs outline-none">
+                            <option value="Shadi">Shadi</option><option value="Tilak">Tilak</option><option value="Haldi">Haldi</option><option value="Bidai">Bidai</option><option value="Sagai">Sagai</option><option value="Birthday">Birthday</option><option value="MANUAL">Manual...</option>
                         </select>
-                        <input type="text" placeholder="Event Name..." class="manual-event hidden w-full border dark:border-slate-600 dark:bg-slate-700 rounded p-1 text-xs mt-1">
+                        <input type="text" placeholder="Event Name..." class="manual-event hidden w-full border rounded p-1 text-xs mt-1">
                     </div>
                     <div class="col-span-4">
-                        <label class="block text-[9px] font-bold text-slate-500 dark:text-slate-400">Setup</label>
-                        <input type="text" placeholder="Photo+Video" class="event-camera w-full border dark:border-slate-600 dark:bg-slate-700 rounded p-1 text-xs outline-none">
+                        <label class="block text-[9px] font-bold text-slate-500">Setup</label>
+                        <input type="text" placeholder="Photo+Video" class="event-camera w-full border rounded p-1 text-xs outline-none">
                     </div>
                     <div class="col-span-1 text-center pt-3">
                         <button type="button" onclick="removeEventRow(this)" class="text-red-500"><i class="fas fa-times-circle"></i></button>
                     </div>
                 </div>
                 <div class="clash-warning hidden bg-amber-100 border border-amber-300 text-amber-900 text-[10px] px-2 py-1 rounded font-semibold flex items-center gap-1">
-                    <i class="fas fa-exclamation-triangle text-amber-600"></i>
-                    <span class="warning-text"></span>
+                    <i class="fas fa-exclamation-triangle text-amber-600"></i><span class="warning-text"></span>
                 </div>
             `;
             container.appendChild(row);
@@ -1064,7 +1073,7 @@
             if(rows.length > 1) btn.closest('.event-row').remove();
         }
 
-        /* --- SIGNATURE CANVAS & FULL SCREEN LOGIC --- */
+        /* --- SIGNATURE CANVAS --- */
         let canvas, ctx, isDrawing = false, hasDrawnSig = false;
         let fullCanvas, fullCtx, isFullDrawing = false;
 
@@ -1072,8 +1081,7 @@
             canvas = document.getElementById('sigCanvas');
             if(!canvas) return;
             ctx = canvas.getContext('2d');
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
             canvas.addEventListener('mousedown', startDrawing);
             canvas.addEventListener('mousemove', draw);
             canvas.addEventListener('mouseup', stopDrawing);
@@ -1096,8 +1104,7 @@
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            ctx.beginPath();
-            ctx.moveTo(clientX - rect.left, clientY - rect.top);
+            ctx.beginPath(); ctx.moveTo(clientX - rect.left, clientY - rect.top);
         }
 
         function draw(e) {
@@ -1107,25 +1114,18 @@
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             ctx.lineWidth = currentLineWidth; ctx.lineCap = 'round'; ctx.strokeStyle = currentColor;
-            ctx.lineTo(clientX - rect.left, clientY - rect.top);
-            ctx.stroke();
+            ctx.lineTo(clientX - rect.left, clientY - rect.top); ctx.stroke();
         }
 
         function stopDrawing() { isDrawing = false; }
-
-        function clearSignature() { 
-            if(ctx) { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
-            hasDrawnSig = false;
-        }
+        function clearSignature() { if(ctx) { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); } hasDrawnSig = false; }
 
         function openFullscreenSignature() {
             setBottomNavVisibility(true);
             document.getElementById('fullSigModal').classList.remove('hidden');
             const rect = fullCanvas.parentElement.getBoundingClientRect();
-            fullCanvas.width = rect.width;
-            fullCanvas.height = rect.height;
-            fullCtx.fillStyle = "#ffffff";
-            fullCtx.fillRect(0, 0, fullCanvas.width, fullCanvas.height);
+            fullCanvas.width = rect.width; fullCanvas.height = rect.height;
+            fullCtx.fillStyle = "#ffffff"; fullCtx.fillRect(0, 0, fullCanvas.width, fullCanvas.height);
         }
 
         function setPenColor(color) { currentColor = color; }
@@ -1136,8 +1136,7 @@
             const rect = fullCanvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            fullCtx.beginPath();
-            fullCtx.moveTo(clientX - rect.left, clientY - rect.top);
+            fullCtx.beginPath(); fullCtx.moveTo(clientX - rect.left, clientY - rect.top);
         }
 
         function drawFull(e) {
@@ -1147,8 +1146,7 @@
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             fullCtx.lineWidth = currentLineWidth; fullCtx.lineCap = 'round'; fullCtx.strokeStyle = currentColor;
-            fullCtx.lineTo(clientX - rect.left, clientY - rect.top);
-            fullCtx.stroke();
+            fullCtx.lineTo(clientX - rect.left, clientY - rect.top); fullCtx.stroke();
         }
 
         function stopFullDrawing() { isFullDrawing = false; }
@@ -1158,8 +1156,7 @@
             const dataUrl = fullCanvas.toDataURL();
             const img = new Image();
             img.onload = function() {
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 hasDrawnSig = true;
             };
@@ -1172,7 +1169,7 @@
             e.preventDefault();
             const submitBtn = document.getElementById('submitBookingBtn');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> <span>Saving...</span>`;
+            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`;
 
             const name = document.getElementById('custName').value.trim();
             const mobile = document.getElementById('custMobile').value.trim();
@@ -1181,7 +1178,6 @@
             const advance = parseFloat(document.getElementById('advance').value) || 0;
             const baki = parseFloat(document.getElementById('baki').value) || 0;
             const note = document.getElementById('specialNote').value.trim();
-            
             const albumChecked = document.getElementById('albumCheck').checked;
             const albumSheets = document.getElementById('albumSheets').value.trim();
             const albumVal = albumChecked ? (albumSheets ? albumSheets : 'Yes') : 'No';
@@ -1196,9 +1192,8 @@
             const processSave = (slipBase64) => {
                 const rows = document.querySelectorAll('.event-row');
                 let batchItems = [];
-
                 rows.forEach(r => {
-                    const date = r.querySelector('.event-date').value;
+                    const dateVal = r.querySelector('.event-date').value;
                     let event = r.querySelector('.event-type').value;
                     if(event === 'MANUAL') event = r.querySelector('.manual-event').value || 'Other';
                     const camera = r.querySelector('.event-camera').value;
@@ -1206,12 +1201,12 @@
                     batchItems.push({
                         customerId: custId, "Customer ID": custId,
                         Name: name, name: name, Mobile: mobile, mobile: mobile,
-                        Location: location, location: location, Date: date, date: date,
+                        Location: location, location: location, Date: dateVal, date: dateVal,
                         Event: event, event: event, Camera: camera, camera: camera,
                         Total: total, total: total, Advance: advance, advance: advance,
                         Baki: baki, baki: baki, Status: "ACTIVE", status: "ACTIVE",
                         Note: note, note: note, Album: albumVal, album: albumVal,
-                        SubmitDate: new Date().toISOString().split('T')[0]
+                        SubmitDate: getLocalDateString()
                     });
                 });
 
@@ -1258,140 +1253,188 @@
             }
         }
 
-        function openModal() { 
-            setBottomNavVisibility(true);
-            document.getElementById('bookingModal').classList.remove('hidden'); 
-        }
-        function closeModal() { 
-            document.getElementById('bookingModal').classList.add('hidden'); 
-            setBottomNavVisibility(false);
-        }
+        function openModal() { setBottomNavVisibility(true); document.getElementById('bookingModal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('bookingModal').classList.add('hidden'); setBottomNavVisibility(false); }
         
-        function openMonthSitesModal() {
+        function openMatchingSitesModal() {
             setBottomNavVisibility(true);
-            document.getElementById('monthSitesModal').classList.remove('hidden');
-            const todayStr = new Date().toISOString().split('T')[0];
-            document.getElementById('filterMonthInput').value = todayStr.substring(0, 7);
-            filterMonthSites();
+            document.getElementById('matchingSitesModal').classList.remove('hidden');
+            currentMatchingTab = 'active';
+            updateMatchingTabsUI();
+            populateMatchingDateDropdown();
+            renderMatchingSitesModalContent();
         }
-        function closeMonthSitesModal() { 
-            document.getElementById('monthSitesModal').classList.add('hidden'); 
-            setBottomNavVisibility(false);
+        function closeMatchingSitesModal() { document.getElementById('matchingSitesModal').classList.add('hidden'); setBottomNavVisibility(false); }
+
+        function switchMatchingTab(tab) {
+            currentMatchingTab = tab;
+            updateMatchingTabsUI();
+            populateMatchingDateDropdown();
+            renderMatchingSitesModalContent();
         }
 
-        function filterMonthSites() {
-            const filterVal = document.getElementById('filterMonthInput').value;
-            const activeBookings = bookings.filter(b => getStatus(b) !== 'DELETED');
-            let filtered = activeBookings.filter(b => {
-                let d = getDate(b);
-                return !filterVal || (d && d.startsWith(filterVal));
-            });
-            document.getElementById('monthSiteCountLabel').innerText = `Total: ${filtered.length}`;
-            const container = document.getElementById('monthSitesContainer');
-            container.innerHTML = '';
-            if(filtered.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 p-4">No sites found.</div>`;
-                return;
-            }
-            filtered.forEach(b => {
-                const card = document.createElement('div');
-                card.className = "bg-blue-50/60 dark:bg-slate-700/60 border border-blue-200 dark:border-slate-600 p-2.5 rounded-xl flex justify-between items-center text-xs";
-                card.innerHTML = `
-                    <div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="font-mono bg-blue-600 text-white text-[10px] px-1.5 py-0.5 rounded font-bold">${getDate(b)}</span>
-                            <span class="font-bold text-slate-900 dark:text-white">${getName(b)}</span>
-                            <span class="bg-indigo-100 dark:bg-indigo-900/60 text-indigo-800 dark:text-indigo-300 text-[10px] font-bold px-1.5 py-0.5 rounded">${getEvent(b)}</span>
-                        </div>
-                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i>${getLocation(b)}</div>
-                    </div>
-                    <div class="text-right">
-                        <div class="font-bold text-slate-900 dark:text-white">₹${getTotal(b).toLocaleString()}</div>
-                        <div class="text-[11px] text-red-600 font-semibold">Baki: ₹${getBaki(b).toLocaleString()}</div>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-        }
-
-        function openClashesModal() {
-            setBottomNavVisibility(true);
-            document.getElementById('clashesModal').classList.remove('hidden');
-            renderClashBreakdown();
-        }
-        function closeClashesModal() { 
-            document.getElementById('clashesModal').classList.add('hidden'); 
-            setBottomNavVisibility(false);
-        }
-
-        function switchClashTab(tab) {
-            currentClashTab = tab;
-            const btnComing = document.getElementById('tabComing');
-            const btnCompleted = document.getElementById('tabCompleted');
-            if(tab === 'coming') {
-                btnComing.className = "flex-1 py-2 text-xs font-bold text-indigo-700 dark:text-indigo-300 border-b-2 border-indigo-600 bg-white dark:bg-slate-800";
-                btnCompleted.className = "flex-1 py-2 text-xs font-bold text-slate-500 dark:text-slate-400";
+        function updateMatchingTabsUI() {
+            const btnActive = document.getElementById('matchingTabActive');
+            const btnDeactive = document.getElementById('matchingTabDeactive');
+            if(currentMatchingTab === 'active') {
+                btnActive.className = "flex-1 py-2 text-xs font-bold text-blue-700 dark:text-blue-300 border-b-2 border-blue-600 bg-white dark:bg-slate-800";
+                btnDeactive.className = "flex-1 py-2 text-xs font-bold text-slate-500 dark:text-slate-400";
             } else {
-                btnCompleted.className = "flex-1 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 border-b-2 border-indigo-600 bg-white dark:bg-slate-800";
-                btnComing.className = "flex-1 py-2 text-xs font-bold text-slate-500 dark:text-slate-400";
+                btnDeactive.className = "flex-1 py-2 text-xs font-bold text-slate-700 dark:text-slate-300 border-b-2 border-blue-600 bg-white dark:bg-slate-800";
+                btnActive.className = "flex-1 py-2 text-xs font-bold text-slate-500 dark:text-slate-400";
             }
-            renderClashTabContent();
         }
 
-        function renderClashBreakdown() {
-            const todayStr = new Date().toISOString().split('T')[0];
+        function getFilteredMatchingGroups() {
+            const todayStr = getLocalDateString();
             const activeBookings = bookings.filter(b => getStatus(b) !== 'DELETED');
-            globalDateGroups = {};
+            
+            let dateGroups = {};
             activeBookings.forEach(b => {
-                const d = getDate(b);
+                let d = getDate(b);
                 if(!d) return;
-                if(!globalDateGroups[d]) globalDateGroups[d] = [];
-                globalDateGroups[d].push(b);
-            });
-            let clashedDates = Object.keys(globalDateGroups).filter(d => globalDateGroups[d].length > 0).sort();
-            globalComingDates = clashedDates.filter(d => d >= todayStr);
-            globalCompletedDates = clashedDates.filter(d => d < todayStr);
+                let status = getStatus(b);
+                let isPast = (d < todayStr || status === 'DEACTIVE');
 
-            document.getElementById('countComing').innerText = globalComingDates.length;
-            document.getElementById('countCompleted').innerText = globalCompletedDates.length;
-            renderClashTabContent();
+                if(currentMatchingTab === 'active' && isPast) return;
+                if(currentMatchingTab === 'deactive' && !isPast) return;
+
+                if(!dateGroups[d]) dateGroups[d] = [];
+                dateGroups[d].push(b);
+            });
+
+            // Keep only dates with > 1 booking (Matching Same Date)
+            let sameDateGroups = {};
+            let activeCount = 0, deactiveCount = 0;
+
+            // First pass to count total active/deactive matching dates
+            let tempActiveGroups = {}, tempDeactiveGroups = {};
+            activeBookings.forEach(b => {
+                let d = getDate(b);
+                if(!d) return;
+                let isPast = (d < todayStr || getStatus(b) === 'DEACTIVE');
+                if(isPast) {
+                    if(!tempDeactiveGroups[d]) tempDeactiveGroups[d] = [];
+                    tempDeactiveGroups[d].push(b);
+                } else {
+                    if(!tempActiveGroups[d]) tempActiveGroups[d] = [];
+                    tempActiveGroups[d].push(b);
+                }
+            });
+
+            Object.keys(tempActiveGroups).forEach(d => { if(tempActiveGroups[d].length > 1) activeCount++; });
+            Object.keys(tempDeactiveGroups).forEach(d => { if(tempDeactiveGroups[d].length > 1) deactiveCount++; });
+
+            document.getElementById('countMatchingActive').innerText = activeCount;
+            document.getElementById('countMatchingDeactive').innerText = deactiveCount;
+
+            Object.keys(dateGroups).forEach(d => {
+                if(dateGroups[d].length > 1) {
+                    sameDateGroups[d] = dateGroups[d];
+                }
+            });
+
+            return sameDateGroups;
         }
 
-        function renderClashTabContent() {
-            const container = document.getElementById('clashDetailsContainer');
+        function populateMatchingDateDropdown() {
+            const sameDateGroups = getFilteredMatchingGroups();
+            const selectEl = document.getElementById('filterMatchingDateSelect');
+            const currentSelected = selectEl.value;
+            
+            selectEl.innerHTML = `<option value="ALL">📅 All Dates (Default)</option>`;
+            let sortedDates = Object.keys(sameDateGroups).sort();
+            
+            sortedDates.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.innerText = `Date: ${d} (${sameDateGroups[d].length} Events)`;
+                selectEl.appendChild(opt);
+            });
+
+            if(sortedDates.includes(currentSelected)) {
+                selectEl.value = currentSelected;
+            } else {
+                selectEl.value = "ALL";
+            }
+        }
+
+        function renderMatchingSitesModalContent() {
+            const sameDateGroups = getFilteredMatchingGroups();
+            const selectedDateFilter = document.getElementById('filterMatchingDateSelect').value;
+
+            let sortedDates = Object.keys(sameDateGroups).sort();
+            if(selectedDateFilter && selectedDateFilter !== 'ALL') {
+                sortedDates = sortedDates.filter(d => d === selectedDateFilter);
+            }
+
+            document.getElementById('matchingSiteCountLabel').innerText = `Dates: ${sortedDates.length}`;
+            
+            const container = document.getElementById('matchingSitesContainer');
             container.innerHTML = '';
-            let datesToRender = (currentClashTab === 'coming') ? globalComingDates : globalCompletedDates;
-            if(datesToRender.length === 0) {
-                container.innerHTML = `<div class="text-center text-slate-400 p-4">No records found.</div>`;
+            
+            if(sortedDates.length === 0) {
+                container.innerHTML = `<div class="text-center text-slate-400 p-4">No matching same-date events found.</div>`;
                 return;
             }
-            datesToRender.forEach((d, index) => {
-                const group = globalDateGroups[d];
+
+            sortedDates.forEach(d => {
+                const group = sameDateGroups[d];
                 let videoCount = 0, photoCount = 0, droneCount = 0;
+                
                 group.forEach(b => {
                     const camStr = getCamera(b).toLowerCase();
                     if(camStr.includes('video')) videoCount += 1;
                     if(camStr.includes('photo')) photoCount += 1;
                     if(camStr.includes('drone')) droneCount += 1;
-                    if(!camStr.includes('video') && !camStr.includes('photo') && !camStr.includes('drone')) { videoCount += 1; photoCount += 1; }
+                    if(!camStr.includes('video') && !camStr.includes('photo') && !camStr.includes('drone')) { 
+                        videoCount += 1; photoCount += 1; 
+                    }
                 });
                 const totalManpower = videoCount + photoCount + droneCount;
 
                 const card = document.createElement('div');
-                card.className = "bg-slate-50 dark:bg-slate-700/50 border dark:border-slate-600 rounded-xl p-3 space-y-2 text-xs";
+                card.className = "bg-slate-50 dark:bg-slate-700/50 border border-blue-200 dark:border-slate-600 rounded-xl p-3 space-y-2 text-xs";
+                
+                let usersHtml = '<div class="space-y-1.5 pt-1">';
+                group.forEach(b => {
+                    let custId = getCustomerID(b);
+                    let bName = getName(b);
+                    let bEvent = getEvent(b);
+                    let bLoc = getLocation(b);
+                    usersHtml += `
+                        <div onclick="openDetailModalFromMatching('${custId}', '${getDate(b)}')" class="bg-white dark:bg-slate-800 p-2 rounded-lg border shadow-sm cursor-pointer hover:border-blue-500 transition flex justify-between items-center">
+                            <div>
+                                <span class="font-bold text-slate-900 dark:text-white">${bName}</span>
+                                <span class="text-[10px] bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded ml-1 font-bold">${bEvent}</span>
+                                <div class="text-[10px] text-slate-500"><i class="fas fa-map-marker-alt text-red-400"></i> ${bLoc}</div>
+                            </div>
+                            <span class="text-[10px] text-blue-600 font-bold underline">View Full Details →</span>
+                        </div>
+                    `;
+                });
+                usersHtml += '</div>';
+
                 card.innerHTML = `
-                    <div class="flex justify-between items-center bg-slate-100 dark:bg-slate-800 p-2 rounded-lg border dark:border-slate-600 font-bold">
-                        <span>📅 Date: ${d} (${group.length} Bookings)</span>
-                        <span class="bg-amber-600 text-white px-2 py-0.5 rounded">👥 Staff: ${totalManpower}</span>
+                    <div class="flex justify-between items-center bg-blue-100 dark:bg-slate-800 p-2 rounded-lg font-bold text-blue-900 dark:text-blue-200">
+                        <span>📅 Same Date: ${d}</span>
+                        <span>Events: ${group.length}</span>
                     </div>
-                    <div class="flex flex-wrap gap-1 font-bold text-[10px]">
-                        <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-1.5 py-0.5 rounded">📹 Video: ${videoCount}</span>
-                        <span class="bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-300 px-1.5 py-0.5 rounded">📸 Photo: ${photoCount}</span>
-                        <span class="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 px-1.5 py-0.5 rounded">🚁 Drone: ${droneCount}</span>
+                    ${usersHtml}
+                    <div class="flex flex-wrap gap-1.5 font-bold text-[10px] pt-2 border-t dark:border-slate-600">
+                        <span class="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300 px-2 py-0.5 rounded">📹 Camera/Video: ${videoCount + photoCount}</span>
+                        <span class="bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded">🚁 Drone: ${droneCount}</span>
+                        <span class="bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-300 px-2 py-0.5 rounded">👥 Total Staff: ${totalManpower} Admi</span>
                     </div>
                 `;
                 container.appendChild(card);
             });
+        }
+
+        function openDetailModalFromMatching(custId, date) {
+            closeMatchingSitesModal();
+            let target = bookings.find(b => getCustomerID(b) === custId && getDate(b) === date);
+            if(target) openDetailModal(target);
         }
     </script>
 </body>
