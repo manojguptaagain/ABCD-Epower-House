@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABCD ENTERTAINMENT STUDIO - Settings & Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 font-sans pb-24 select-none transition-colors duration-200">
+
+    <!-- Header with Top-Left Horizontal 3-Line Menu -->
+    <header class="bg-indigo-900 text-white shadow-md p-3 sticky top-0 z-40 flex items-center justify-between">
+        <!-- Top-Left Hamburger Menu (3 Horizontal Lines) -->
+        <div class="relative">
+            <button onclick="toggleTopMenu(event)" class="w-9 h-9 rounded-xl bg-indigo-800 hover:bg-indigo-700 flex items-center justify-center text-white transition focus:outline-none shadow-sm">
+                <i class="fas fa-bars text-sm"></i>
+            </button>
+            <!-- Dropdown Menu -->
+            <div id="topDropdownMenu" class="absolute left-0 mt-2 w-52 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-xl shadow-2xl border dark:border-slate-700 hidden py-1.5 z-50 text-xs">
+                <button onclick="switchTab('home')" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium transition">
+                    <i class="fas fa-calendar-check text-emerald-600 w-4"></i> Admin Bookings
+                </button>
+                <button onclick="switchTab('files')" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium transition">
+                    <i class="fas fa-folder-open text-amber-500 w-4"></i> Google Drive Files
+                </button>
+                <button onclick="switchTab('customers')" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium transition">
+                    <i class="fas fa-users text-indigo-600 w-4"></i> Customer Portal
+                </button>
+            </div>
+        </div>
+
+        <div class="text-center flex-1 px-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-wide truncate" id="headerTitle">🎬 ABCD ENTERTAINMENT STUDIO</h1>
+            <p class="text-[10px] text-indigo-200 truncate" id="headerSubtitle">Studio Settings & Admin Control Center</p>
+        </div>
+
+        <div class="w-9"></div>
+    </header>
+
+    <main class="max-w-xl mx-auto p-3 space-y-4">
+
+        <!-- Theme & Branding Settings -->
+        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border dark:border-slate-700 shadow-sm space-y-3">
+            <h3 class="font-bold text-xs text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5 border-b dark:border-slate-700 pb-2">
+                <i class="fas fa-palette text-indigo-600"></i> Studio Branding & Appearance
+            </h3>
+
+            <div class="space-y-2.5 text-xs">
+                <div>
+                    <label class="block font-bold mb-1">Studio Name</label>
+                    <input type="text" id="settingStudioName" value="ABCD ENTERTAINMENT STUDIO" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs font-semibold outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1">Studio Tagline / Subtitle</label>
+                    <input type="text" id="settingStudioTagline" value="Advanced Studio Management & Cinematic Coverage" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none">
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                    <span class="font-bold">Dark Mode Theme</span>
+                    <button onclick="toggleDarkMode()" id="darkModeToggleBtn" class="px-3 py-1.5 rounded-lg font-bold text-xs bg-slate-200 dark:bg-indigo-600 dark:text-white transition">
+                        <i class="fas fa-moon mr-1"></i> Enable Dark Mode
+                    </button>
+                </div>
+
+                <div class="flex justify-end pt-1">
+                    <button onclick="saveBrandingSettings()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl font-bold shadow text-xs flex items-center gap-1.5">
+                        <i class="fas fa-save"></i> Save Branding
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Package Management Section -->
+        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border dark:border-slate-700 shadow-sm space-y-3">
+            <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                <h3 class="font-bold text-xs text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                    <i class="fas fa-gift text-indigo-600"></i> Manage Booking Packages
+                </h3>
+                <button onclick="openPackageModal('add')" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow flex items-center gap-1">
+                    <i class="fas fa-plus"></i> Add Package
+                </button>
+            </div>
+
+            <p class="text-[10px] text-slate-500 dark:text-slate-400">Yahan se aap naye packages add kar sakte hain jo turant Customers Portal par dikhenge.</p>
+
+            <div id="adminPackagesListContainer" class="space-y-2.5">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+
+        <!-- Google Sheet Trash Bin / Recycle Manager -->
+        <div class="bg-white dark:bg-slate-800 p-3.5 rounded-xl border dark:border-slate-700 shadow-sm space-y-3">
+            <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                <h3 class="font-bold text-xs text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                    <i class="fas fa-trash-restore text-amber-600"></i> Deleted Bookings (Trash Bin)
+                </h3>
+                <button onclick="fetchTrashData()" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 px-3 py-1 rounded-lg text-xs font-bold">
+                    <i class="fas fa-sync-alt"></i> Refresh Bin
+                </button>
+            </div>
+
+            <p class="text-[10px] text-slate-500 dark:text-slate-400">Keval wahi bookings yahan dikhengi jinka status Google Sheet mein 'DELETED' hai.</p>
+
+            <div id="trashBinContainer" class="space-y-2.5 max-h-60 overflow-y-auto">
+                <div class="text-center text-xs text-slate-400 py-3">Click 'Refresh Bin' to load deleted items.</div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Package Add/Edit Modal -->
+    <div id="packageModal" class="fixed inset-0 bg-slate-900/70 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden p-4 space-y-3">
+            <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                <h3 id="modalPkgHeading" class="font-bold text-xs text-indigo-900 dark:text-indigo-300">Add New Studio Package</h3>
+                <button onclick="closePackageModal()" class="text-slate-400 hover:text-red-600 font-bold text-lg">&times;</button>
+            </div>
+
+            <form id="pkgForm" onsubmit="savePackageForm(event)" class="space-y-2.5 text-xs">
+                <input type="hidden" id="editPkgIndex" value="-1">
+                <div>
+                    <label class="block font-bold mb-1">Package Title *</label>
+                    <input type="text" id="formPkgTitle" required placeholder="e.g. Grand Wedding Package..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none font-semibold">
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold mb-1">Price (₹) *</label>
+                        <input type="number" id="formPkgPrice" required placeholder="14999" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none font-bold">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-1">Includes Photo Album?</label>
+                        <select id="formPkgHasPhoto" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none font-bold">
+                            <option value="true">Yes (With Album)</option>
+                            <option value="false">No (Video Only)</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-bold mb-1">Events Included (Comma separated) *</label>
+                    <input type="text" id="formPkgEvents" required placeholder="Shadi, Tilak, Haldi" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1">Setup Specification *</label>
+                    <input type="text" id="formPkgSetup" required placeholder="Photo+Video+Drone" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1">Banner Image URL *</label>
+                    <input type="url" id="formPkgImage" required placeholder="https://images.unsplash.com/..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1">Short Description</label>
+                    <textarea id="formPkgDesc" rows="2" placeholder="Package highlights..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none"></textarea>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-1">
+                    <button type="button" onclick="closePackageModal()" class="px-3.5 py-2 bg-slate-200 dark:bg-slate-700 rounded-xl font-bold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow">Save Package</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- STANDARDIZED COMPACT & CENTERED BOTTOM NAVIGATION BAR -->
+    <div style="position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important; z-index: 999999 !important; display: flex !important; justify-content: center !important; pointer-events: none !important;">
+        <div style="pointer-events: auto !important; background-color: #ffffff !important; border-top: 1px solid #cbd5e1 !important; border-left: 1px solid #cbd5e1 !important; border-right: 1px solid #cbd5e1 !important; border-top-left-radius: 16px !important; border-top-right-radius: 16px !important; box-shadow: 0 -4px 20px rgba(0,0,0,0.12) !important; width: 100% !important; max-width: 420px !important;" class="dark:!bg-slate-800 dark:!border-slate-700">
+            <nav style="display: flex !important; justify-content: space-around !important; align-items: center !important; padding: 8px 12px !important;">
+                <button onclick="switchTab('home')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-weight: 500; font-size: 10px;" class="dark:text-slate-400">
+                    <i class="fas fa-home" style="font-size: 16px; margin-bottom: 2px;"></i> Home
+                </button>
+                <button onclick="switchTab('files')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-weight: 500; font-size: 10px;" class="dark:text-slate-400">
+                    <i class="fas fa-folder-open" style="font-size: 16px; margin-bottom: 2px;"></i> Files
+                </button>
+                <button onclick="switchTab('customers')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-weight: 500; font-size: 10px;" class="dark:text-slate-400">
+                    <i class="fas fa-users" style="font-size: 16px; margin-bottom: 2px;"></i> Customers
+                </button>
+                <button onclick="switchTab('settings')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #4f46e5; font-weight: bold; font-size: 10px;" class="dark:text-indigo-400">
+                    <i class="fas fa-cog" style="font-size: 16px; margin-bottom: 2px;"></i> Settings
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwDJ6kfcwqhMmvjNtJfwrlpZpujI5HU-x2ES8hnDx6XvHDYnUZ44boLb41JbUQ8DAd6/exec";
+
+        window.onload = function() {
+            loadBrandingSettings();
+            renderAdminPackages();
+
+            window.addEventListener('click', function(e) {
+                const menu = document.getElementById('topDropdownMenu');
+                if(!e.target.closest('header')) {
+                    menu.classList.add('hidden');
+                }
+            });
+        };
+
+        function toggleTopMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('topDropdownMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function switchTab(tabName) {
+            if(tabName === 'home') window.location.href = "Home.html";
+            else if(tabName === 'files') window.location.href = "Files.html";
+            else if(tabName === 'customers') window.location.href = "Customers.html";
+            else if(tabName === 'settings') return;
+        }
+
+        function loadBrandingSettings() {
+            const isDark = localStorage.getItem('abcd_dark_mode') === 'true';
+            if(isDark) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('darkModeToggleBtn').innerHTML = `<i class="fas fa-sun mr-1"></i> Disable Dark Mode`;
+            }
+
+            const sName = localStorage.getItem('abcd_studio_name');
+            const sSub = localStorage.getItem('abcd_studio_tagline');
+            if(sName) {
+                document.getElementById('settingStudioName').value = sName;
+                document.getElementById('headerTitle').innerText = `🎬 ${sName}`;
+            }
+            if(sSub) {
+                document.getElementById('settingStudioTagline').value = sSub;
+                document.getElementById('headerSubtitle').innerText = sSub;
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('abcd_dark_mode', isDark);
+            if(isDark) {
+                document.getElementById('darkModeToggleBtn').innerHTML = `<i class="fas fa-sun mr-1"></i> Disable Dark Mode`;
+            } else {
+                document.getElementById('darkModeToggleBtn').innerHTML = `<i class="fas fa-moon mr-1"></i> Enable Dark Mode`;
+            }
+        }
+
+        function saveBrandingSettings() {
+            const name = document.getElementById('settingStudioName').value.trim();
+            const sub = document.getElementById('settingStudioTagline').value.trim();
+            if(name) localStorage.setItem('abcd_studio_name', name);
+            if(sub) localStorage.setItem('abcd_studio_tagline', sub);
+            alert("Studio Branding saved successfully!");
+            loadBrandingSettings();
+        }
+
+        function getPackagesList() {
+            let pkgs = [];
+            const saved = localStorage.getItem('abcd_admin_packages');
+            if(saved) {
+                try { pkgs = JSON.parse(saved); } catch(e){}
+            }
+            if(pkgs.length === 0) {
+                pkgs = [
+                    { id: "pkg_1", title: "Grand Package (Drone + Photo + Video + 20 Sheets Album)", price: 14999, events: "Shadi, Tilak", setup: "Photo+Video+Drone", hasPhoto: true, image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=500", desc: "Shadi & Tilak setup with Drone + 20 Sheets Photobook Album." },
+                    { id: "pkg_2", title: "3-Days Complete Video Package", price: 6999, events: "Tilak, Haldi, Shadi", setup: "Video Coverage", hasPhoto: false, image: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=500", desc: "Tilak, Haldi aur Shadi teeno din ka full HD video coverage." },
+                    { id: "pkg_3", title: "3-Days Video + Special Bidai Coverage", price: 9999, events: "Tilak, Haldi, Shadi, Bidai", setup: "Video+Bidai", hasPhoto: false, image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=500", desc: "3-Days HD Video shoot + Bidai ceremony full coverage." },
+                    { id: "pkg_4", title: "Only Shadi HD Video Package", price: 4999, events: "Shadi", setup: "HD Video", hasPhoto: false, image: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=500", desc: "Keval Shadi ke din ka complete main stage & barat video recording." }
+                ];
+                localStorage.setItem('abcd_admin_packages', JSON.stringify(pkgs));
+            }
+            return pkgs;
+        }
+
+        function renderAdminPackages() {
+            const container = document.getElementById('adminPackagesListContainer');
+            container.innerHTML = '';
+            const pkgs = getPackagesList();
+
+            pkgs.forEach((pkg, index) => {
+                const item = document.createElement('div');
+                item.className = "bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600 flex justify-between items-center gap-2 text-xs";
+                item.innerHTML = `
+                    <div class="flex items-center gap-2.5 overflow-hidden">
+                        <img src="${pkg.image}" class="w-10 h-10 rounded-lg object-cover bg-slate-900 shrink-0">
+                        <div class="truncate">
+                            <h4 class="font-bold text-slate-900 dark:text-white truncate">${pkg.title}</h4>
+                            <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold">₹${parseFloat(pkg.price).toLocaleString()} | ${pkg.setup}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="openPackageModal('edit', ${index})" class="w-7 h-7 bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200 rounded-lg font-bold flex items-center justify-center"><i class="fas fa-edit text-[10px]"></i></button>
+                        <button onclick="deletePackageItem(${index})" class="w-7 h-7 bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-200 rounded-lg font-bold flex items-center justify-center"><i class="fas fa-trash text-[10px]"></i></button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function openPackageModal(mode, index = -1) {
+            document.getElementById('packageModal').classList.remove('hidden');
+            if(mode === 'add') {
+                document.getElementById('modalPkgHeading').innerText = "Add New Studio Package";
+                document.getElementById('editPkgIndex').value = -1;
+                document.getElementById('pkgForm').reset();
+            } else {
+                document.getElementById('modalPkgHeading').innerText = "Edit Studio Package";
+                document.getElementById('editPkgIndex').value = index;
+                const pkgs = getPackagesList();
+                const p = pkgs[index];
+                document.getElementById('formPkgTitle').value = p.title;
+                document.getElementById('formPkgPrice').value = p.price;
+                document.getElementById('formPkgHasPhoto').value = p.hasPhoto ? "true" : "false";
+                document.getElementById('formPkgEvents').value = p.events;
+                document.getElementById('formPkgSetup').value = p.setup;
+                document.getElementById('formPkgImage').value = p.image;
+                document.getElementById('formPkgDesc').value = p.desc || '';
+            }
+        }
+
+        function closePackageModal() {
+            document.getElementById('packageModal').classList.add('hidden');
+        }
+
+        function savePackageForm(e) {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('editPkgIndex').value);
+            const title = document.getElementById('formPkgTitle').value.trim();
+            const price = parseFloat(document.getElementById('formPkgPrice').value) || 0;
+            const hasPhoto = document.getElementById('formPkgHasPhoto').value === "true";
+            const events = document.getElementById('formPkgEvents').value.trim();
+            const setup = document.getElementById('formPkgSetup').value.trim();
+            const image = document.getElementById('formPkgImage').value.trim();
+            const desc = document.getElementById('formPkgDesc').value.trim();
+
+            let pkgs = getPackagesList();
+            const pkgObj = { id: "pkg_" + Date.now(), title, price, events, setup, hasPhoto, image, desc };
+
+            if(index === -1) {
+                pkgs.push(pkgObj);
+            } else {
+                pkgs[index] = pkgObj;
+            }
+
+            localStorage.setItem('abcd_admin_packages', JSON.stringify(pkgs));
+            closePackageModal();
+            renderAdminPackages();
+            alert("Package saved successfully!");
+        }
+
+        function deletePackageItem(index) {
+            if(confirm("Are you sure you want to delete this package?")) {
+                let pkgs = getPackagesList();
+                pkgs.splice(index, 1);
+                localStorage.setItem('abcd_admin_packages', JSON.stringify(pkgs));
+                renderAdminPackages();
+            }
+        }
+
+        function fetchTrashData() {
+            const container = document.getElementById('trashBinContainer');
+            container.innerHTML = `<div class="text-center text-xs text-indigo-600 py-3"><i class="fas fa-spinner fa-spin mr-1"></i> Loading trash bin...</div>`;
+
+            fetch(GOOGLE_SHEET_URL, { redirect: "follow" })
+                .then(res => res.json())
+                .then(data => {
+                    container.innerHTML = '';
+                    if(!data || !Array.isArray(data)) {
+                        container.innerHTML = `<div class="text-center text-xs text-slate-400 py-3">No data found.</div>`;
+                        return;
+                    }
+
+                    // Strict filter: keval wahi rows jinka status exact 'DELETED' hai
+                    const deletedRows = data.filter(b => {
+                        const st = String(b.Status || b.status || '').toUpperCase().trim();
+                        return st === 'DELETED';
+                    });
+
+                    if(deletedRows.length === 0) {
+                        container.innerHTML = `<div class="text-center text-xs text-slate-400 py-3">Trash bin is empty. No deleted bookings found.</div>`;
+                        return;
+                    }
+
+                    // Group deleted rows by Customer ID
+                    const groupedMap = {};
+                    deletedRows.forEach(b => {
+                        let cid = b['Customer ID'] || b.CustomerID || b.customerid || b.custid || 'UNKNOWN';
+                        cid = String(cid).trim().toUpperCase();
+                        if(!groupedMap[cid]) {
+                            groupedMap[cid] = {
+                                customerId: cid,
+                                name: b['Name'] || b.Name || b.name || 'N/A',
+                                mobile: b['Mobile'] || b.Mobile || b.mobile || 'N/A',
+                                location: b['Location'] || b.Location || b.location || 'N/A',
+                                dates: []
+                            };
+                        }
+                        let d = b['Date'] || b.Date || b.date || '';
+                        if(d) {
+                            if(d.includes('T')) d = d.split('T')[0];
+                            if(!groupedMap[cid].dates.includes(d)) groupedMap[cid].dates.push(d);
+                        }
+                    });
+
+                    const uniqueDeletedCustomers = Object.values(groupedMap);
+
+                    if(uniqueDeletedCustomers.length === 0) {
+                        container.innerHTML = `<div class="text-center text-xs text-slate-400 py-3">Trash bin is empty.</div>`;
+                        return;
+                    }
+
+                    uniqueDeletedCustomers.forEach((cust) => {
+                        const row = document.createElement('div');
+                        row.className = "bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600 flex justify-between items-center text-xs";
+                        row.innerHTML = `
+                            <div class="space-y-0.5">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="font-mono bg-indigo-100 text-indigo-900 dark:bg-indigo-900 dark:text-indigo-200 font-bold px-1.5 py-0.5 rounded text-[10px]">ID: ${cust.customerId}</span>
+                                    <b class="text-slate-900 dark:text-white">${cust.name}</b>
+                                </div>
+                                <div class="text-[10px] text-slate-500 dark:text-slate-400"><i class="fas fa-phone mr-1"></i>${cust.mobile} | <i class="fas fa-map-marker-alt text-red-500 ml-1 mr-0.5"></i>${cust.location}</div>
+                                <div class="text-[10px] font-semibold text-amber-600 dark:text-amber-400">Dates: ${cust.dates.join(', ') || 'N/A'}</div>
+                            </div>
+                            <button onclick="restoreBooking('${cust.customerId}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow flex items-center gap-1 shrink-0">
+                                <i class="fas fa-undo"></i> Restore
+                            </button>
+                        `;
+                        container.appendChild(row);
+                    });
+                })
+                .catch(err => {
+                    container.innerHTML = `<div class="text-center text-xs text-red-500 py-3">Failed to load trash bin.</div>`;
+                });
+        }
+
+        function restoreBooking(customerId) {
+            if(confirm(`Restore all booking records for Customer ID: ${customerId}?`)) {
+                fetch(GOOGLE_SHEET_URL, {
+                    method: "POST", mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action: "restore", customerId: customerId })
+                }).then(() => {
+                    alert("Bookings restored successfully! Status updated to ACTIVE in Google Sheet.");
+                    setTimeout(fetchTrashData, 1500);
+                }).catch(err => alert("Error restoring booking."));
+            }
+        }
+    </script>
+</body>
+</html>

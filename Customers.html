@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABCD ENTERTAINMENT STUDIO - Customers Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 font-sans pb-24 select-none transition-colors duration-200">
+
+    <!-- Header with Top-Left Horizontal 3-Line Menu -->
+    <header class="bg-indigo-900 text-white shadow-md p-3 sticky top-0 z-40 flex items-center justify-between">
+        <!-- Top-Left Hamburger Menu (3 Horizontal Lines) -->
+        <div class="relative">
+            <button onclick="toggleTopMenu(event)" class="w-9 h-9 rounded-xl bg-indigo-800 hover:bg-indigo-700 flex items-center justify-center text-white transition focus:outline-none shadow-sm">
+                <i class="fas fa-bars text-sm"></i>
+            </button>
+            <!-- Dropdown Menu with New Options -->
+            <div id="topDropdownMenu" class="absolute left-0 mt-2 w-52 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-xl shadow-2xl border dark:border-slate-700 hidden py-1.5 z-50 text-xs">
+                <button onclick="openStaffModalFromMenu()" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium transition">
+                    <i class="fas fa-users text-indigo-600 w-4"></i> Studio Team & Staff
+                </button>
+                <button onclick="openQuickInvoiceModal()" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium transition">
+                    <i class="fas fa-calculator text-emerald-600 w-4"></i> Quick Invoice Calculator
+                </button>
+                <button onclick="triggerDataSync()" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium transition">
+                    <i class="fas fa-sync-alt text-amber-500 w-4"></i> Refresh Sync Data
+                </button>
+                <button onclick="switchTab('settings')" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium border-t dark:border-slate-700 mt-1 pt-2 transition">
+                    <i class="fas fa-cog text-slate-500 w-4"></i> Studio Settings
+                </button>
+            </div>
+        </div>
+
+        <div class="text-center flex-1 px-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-wide truncate" id="headerTitle">🎬 ABCD ENTERTAINMENT STUDIO</h1>
+            <p class="text-[10px] text-indigo-200 truncate" id="headerSubtitle">Customer Portal & Online Studio Booking</p>
+        </div>
+
+        <div class="w-9"></div> <!-- Spacer for balance -->
+    </header>
+
+    <main class="max-w-xl mx-auto p-3 space-y-3.5">
+
+        <!-- Search Customer Booking -->
+        <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border dark:border-slate-700 shadow-sm space-y-2">
+            <h3 class="font-bold text-xs text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                <i class="fas fa-user-shield text-indigo-600"></i> Check My Booking Status
+            </h3>
+            <p class="text-[10px] text-slate-500 dark:text-slate-400">Apna 6-digit Customer ID daalein aur apni booking details dekhein.</p>
+            
+            <div class="flex items-center gap-2 pt-0.5">
+                <div class="relative flex-1">
+                    <input type="text" id="custSearchID" placeholder="Enter Customer ID (e.g. AB1234)" class="w-full border dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl pl-8 pr-3 py-1.5 text-xs font-semibold focus:ring-2 focus:ring-indigo-500 outline-none uppercase">
+                    <i class="fas fa-key absolute left-2.5 top-2.5 text-indigo-500 text-xs"></i>
+                </div>
+                <button onclick="searchMyBooking()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 shadow">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </div>
+            <div id="searchMessage" class="text-[11px] font-semibold hidden"></div>
+        </div>
+
+        <div id="customerResultContainer" class="space-y-2"></div>
+
+        <hr class="border-slate-200 dark:border-slate-700 my-2">
+
+        <!-- Dynamic Packages Section -->
+        <div class="space-y-2.5">
+            <div class="flex justify-between items-center px-0.5">
+                <h3 class="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
+                    <i class="fas fa-gift text-indigo-600"></i> Select Studio Package to Book
+                </h3>
+                <span class="text-[10px] bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 font-bold px-2 py-0.5 rounded-full">Tap Card for Details</span>
+            </div>
+
+            <!-- Dynamic Package Cards Container -->
+            <div id="dynamicPackagesGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <!-- Injected dynamically via script -->
+            </div>
+        </div>
+
+        <!-- Package Detail Modal -->
+        <div id="packageDetailModal" class="fixed inset-0 bg-slate-900/70 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[90vh]">
+                <div class="relative h-44 bg-slate-900">
+                    <img id="modalPkgImage" src="" class="w-full h-full object-cover">
+                    <button onclick="closePackageDetail()" class="absolute top-2 right-2 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center font-bold text-base hover:bg-black">&times;</button>
+                    <span id="modalPkgPriceBadge" class="absolute bottom-2 right-2 bg-indigo-600 text-white font-bold text-xs px-3 py-1 rounded-lg shadow"></span>
+                </div>
+                <div class="p-4 space-y-3 overflow-y-auto text-xs">
+                    <div>
+                        <h2 id="modalPkgTitle" class="text-sm font-bold text-indigo-900 dark:text-indigo-300"></h2>
+                        <p id="modalPkgDesc" class="text-slate-600 dark:text-slate-300 mt-1 leading-relaxed text-[11px]"></p>
+                    </div>
+                    <div class="bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600 space-y-1.5">
+                        <div class="flex justify-between"><b>Events Included:</b> <span id="modalPkgEvents" class="font-semibold text-indigo-700 dark:text-indigo-300"></span></div>
+                        <div class="flex justify-between"><b>Setup Specification:</b> <span id="modalPkgSetup" class="font-semibold"></span></div>
+                    </div>
+                    <button onclick="proceedFromModalToBooking()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow flex items-center justify-center gap-2 text-xs transition">
+                        <i class="fas fa-calendar-check"></i> Book Your Event Now
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Booking Form Section -->
+        <div id="bookingFormSection" class="bg-white dark:bg-slate-800 dark:text-white p-3.5 rounded-2xl border-2 border-indigo-500 shadow-md space-y-3 hidden">
+            <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                <div>
+                    <h3 class="font-bold text-xs text-indigo-900 dark:text-indigo-300"><i class="fas fa-check-circle text-emerald-600 mr-1"></i> Fill Booking Details</h3>
+                    <p class="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold" id="selectedPackageTitleDisplay">Selected Package: None</p>
+                </div>
+                <button onclick="closeBookingForm()" class="text-slate-400 hover:text-red-600 font-bold text-base">&times;</button>
+            </div>
+
+            <form id="custSelfBookingForm" onsubmit="initiateBookingPayment(event)" class="space-y-2.5 text-xs">
+                
+                <!-- Personal Info -->
+                <div class="bg-indigo-50/50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600 grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="block font-bold mb-0.5">Customer Name *</label>
+                        <input type="text" id="custSelfName" required placeholder="Full Name..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-0.5">Mobile Number *</label>
+                        <input type="tel" id="custSelfMobile" required placeholder="10-digit Mobile..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block font-bold mb-0.5">Event Location / Address *</label>
+                        <input type="text" id="custSelfLocation" required placeholder="Village, Landmark, Post..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                    </div>
+                </div>
+
+                <!-- Multi-Date Events Section -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block font-bold uppercase text-[10px]">Event Dates & Setup *</label>
+                        <button type="button" onclick="addExtraEventRow()" class="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold underline">+ Add Event Date</button>
+                    </div>
+                    <div id="autoEventRowsContainer" class="space-y-2"></div>
+                </div>
+
+                <!-- Conditional Album Upgrade Section -->
+                <div id="albumUpgradeSection" class="bg-amber-50/80 dark:bg-slate-700/60 border border-amber-200 dark:border-amber-600 p-2.5 rounded-xl space-y-1.5 hidden">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="font-bold text-amber-900 dark:text-amber-300"><i class="fas fa-book-open text-amber-600 mr-1"></i> Extra Album Sheets (+₹150/Sheet):</span>
+                        <div class="flex items-center gap-1.5">
+                            <button type="button" onclick="changeSheetCount(-1)" class="w-6 h-6 bg-white dark:bg-slate-600 border font-bold rounded-lg">-</button>
+                            <input type="number" id="extraSheets" value="0" min="0" oninput="recalculateTotal()" class="w-10 text-center border dark:border-slate-600 dark:bg-slate-700 rounded-lg py-0.5 font-bold outline-none">
+                            <button type="button" onclick="changeSheetCount(1)" class="w-6 h-6 bg-white dark:bg-slate-600 border font-bold rounded-lg">+</button>
+                        </div>
+                    </div>
+                    <div class="text-[10px] text-amber-800 dark:text-amber-400 flex justify-between pt-1 border-t border-amber-200 dark:border-slate-600">
+                        <span>Extra Sheets Charge:</span>
+                        <span id="extraSheetCostText">+₹0 (Base: 20 Sheets)</span>
+                    </div>
+                </div>
+
+                <!-- Digital Signature Canvas -->
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block font-bold"><i class="fas fa-signature"></i> Customer Digital Signature *</label>
+                        <button type="button" onclick="clearSignature()" class="text-[10px] text-red-600 underline font-bold">Clear</button>
+                    </div>
+                    <canvas id="sigCanvas" width="350" height="80" class="border dark:border-slate-600 rounded-lg bg-white cursor-crosshair w-full"></canvas>
+                </div>
+
+                <!-- Payment Breakdown -->
+                <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600">
+                    <div>
+                        <label class="block font-bold mb-0.5">Total Package (₹)</label>
+                        <input type="number" id="custCalculatedTotal" readonly class="w-full border dark:border-slate-600 bg-slate-100 dark:bg-slate-700 rounded-lg p-1.5 text-xs font-bold text-indigo-900 dark:text-indigo-300">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-0.5">Advance Pay (₹) *</label>
+                        <input type="number" id="custAdvancePay" value="1000" min="500" required oninput="calcBaki()" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-400 outline-none">
+                    </div>
+                    <div class="col-span-2 flex justify-between items-center pt-1 border-t dark:border-slate-600 text-xs">
+                        <span class="font-bold">Remaining Baki:</span>
+                        <span class="font-bold text-red-600 text-sm" id="custBakiText">₹0</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-1">
+                    <button type="submit" id="custSubmitBtn" class="w-full py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold shadow flex items-center justify-center gap-2 transition text-xs">
+                        <i class="fas fa-shield-alt text-emerald-400"></i> Pay Advance & Generate Invoice
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </main>
+
+    <!-- Staff Management Modal -->
+    <div id="staffModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-xl max-w-sm w-full overflow-hidden p-4 space-y-3">
+            <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                <h3 class="font-bold text-xs text-slate-900 dark:text-white"><i class="fas fa-users text-indigo-600 mr-1.5"></i> Studio Team & Operators</h3>
+                <button onclick="closeStaffModal()" class="text-slate-400 hover:text-red-600 font-bold text-lg">&times;</button>
+            </div>
+            <div class="space-y-2 text-xs max-h-60 overflow-y-auto">
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-lg border dark:border-slate-600 flex justify-between items-center"><span>Palu & Vivek</span><span class="text-[10px] bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2 py-0.5 rounded font-bold">Camera Operators</span></div>
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-lg border dark:border-slate-600 flex justify-between items-center"><span>Mataruwa & Dhananjay</span><span class="text-[10px] bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 px-2 py-0.5 rounded font-bold">Video Tech</span></div>
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-lg border dark:border-slate-600 flex justify-between items-center"><span>Golu Sharma & Raja Sheikh</span><span class="text-[10px] bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 px-2 py-0.5 rounded font-bold">Drone Pilots</span></div>
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-2 rounded-lg border dark:border-slate-600 flex justify-between items-center"><span>Arjun, DK & Ashok</span><span class="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 px-2 py-0.5 rounded font-bold">Studio Assistants</span></div>
+            </div>
+            <div class="flex justify-end pt-1">
+                <button onclick="closeStaffModal()" class="px-3 py-1.5 bg-slate-200 dark:bg-slate-700 rounded-lg text-xs font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Invoice Calculator Modal -->
+    <div id="quickCalcModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-xl max-w-sm w-full overflow-hidden p-4 space-y-3">
+            <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                <h3 class="font-bold text-xs text-slate-900 dark:text-white"><i class="fas fa-calculator text-emerald-600 mr-1.5"></i> Quick Invoice Estimator</h3>
+                <button onclick="closeQuickInvoiceModal()" class="text-slate-400 hover:text-red-600 font-bold text-lg">&times;</button>
+            </div>
+            <div class="space-y-2.5 text-xs">
+                <div>
+                    <label class="block font-bold mb-1">Base Package Price (₹)</label>
+                    <input type="number" id="quickBasePrice" value="10000" oninput="calcQuickTotal()" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs font-bold outline-none">
+                </div>
+                <div>
+                    <label class="block font-bold mb-1">Extra Album Sheets (+₹150/Sheet)</label>
+                    <input type="number" id="quickExtraSheets" value="0" min="0" oninput="calcQuickTotal()" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs font-bold outline-none">
+                </div>
+                <div class="bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600 space-y-1">
+                    <div class="flex justify-between"><span>Calculated Total:</span> <b id="quickTotalText" class="text-indigo-600 dark:text-indigo-400">₹10,000</b></div>
+                    <div class="flex justify-between"><span>Recommended Advance:</span> <b id="quickAdvText" class="text-emerald-600">₹2,000</b></div>
+                </div>
+            </div>
+            <div class="flex justify-end pt-1">
+                <button onclick="closeQuickInvoiceModal()" class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auto-Generated Invoice Modal -->
+    <div id="invoiceModal" class="fixed inset-0 bg-slate-900/80 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="bg-indigo-900 text-white px-4 py-3 flex justify-between items-center">
+                <h3 class="font-bold text-xs flex items-center gap-1.5"><i class="fas fa-file-invoice-dollar text-emerald-400"></i> Official Tax & Booking Invoice</h3>
+                <button onclick="closeInvoiceModal()" class="text-indigo-200 hover:text-white text-lg font-bold">&times;</button>
+            </div>
+            
+            <div class="p-4 overflow-y-auto space-y-3 text-xs" id="invoicePrintArea">
+                <div class="text-center border-b dark:border-slate-700 pb-2.5 space-y-0.5">
+                    <h2 class="text-sm font-bold text-indigo-900 dark:text-indigo-300" id="invStudioTitle">🎬 ABCD ENTERTAINMENT STUDIO</h2>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Advanced Studio Management & Cinematic Coverage</p>
+                    <div class="inline-block bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full text-[9px] mt-1">
+                        ✔️ PAID VIA RAZORPAY GATEWAY
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600 text-[11px]">
+                    <div><b>Customer Name:</b> <span id="invCustName"></span></div>
+                    <div><b>Customer ID:</b> <span id="invCustID" class="font-mono font-bold text-indigo-600 dark:text-indigo-400"></span></div>
+                    <div><b>Mobile:</b> <span id="invMobile"></span></div>
+                    <div><b>Location:</b> <span id="invLocation"></span></div>
+                    <div class="col-span-2"><b>Booked Dates:</b> <span id="invDatesList" class="font-bold text-indigo-700 dark:text-indigo-300"></span></div>
+                </div>
+
+                <div class="space-y-1">
+                    <div class="font-bold text-slate-700 dark:text-slate-300 uppercase text-[10px] border-b dark:border-slate-700 pb-1">Package & Payment Details:</div>
+                    <div class="flex justify-between py-1 border-b dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                        <span id="invPkgName" class="font-semibold"></span>
+                        <span id="invPkgTotal"></span>
+                    </div>
+                    <div class="flex justify-between py-1 border-b dark:border-slate-700 text-slate-600 dark:text-slate-300">
+                        <span>Album Specification:</span>
+                        <span id="invAlbum" class="font-semibold"></span>
+                    </div>
+                    <div class="flex justify-between py-1 font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/40 px-2 rounded">
+                        <span>Advance Paid Online:</span>
+                        <span id="invPaid"></span>
+                    </div>
+                    <div class="flex justify-between py-1 font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/40 px-2 rounded">
+                        <span>Remaining Baki:</span>
+                        <span id="invBaki"></span>
+                    </div>
+                </div>
+
+                <div class="pt-1.5 border-t dark:border-slate-700 text-center">
+                    <span class="block text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1">Customer Digital Signature</span>
+                    <img id="invSigImg" src="" alt="Signature" class="max-h-16 mx-auto border dark:border-slate-600 rounded bg-slate-50 p-1 object-contain">
+                </div>
+
+                <div class="text-center text-[10px] text-slate-400 pt-1 border-t dark:border-slate-700">
+                    <p>Thank you for booking with ABCD Entertainment Studio!</p>
+                    <p class="font-mono mt-0.5">Transaction ID: <span id="invTxnId"></span></p>
+                </div>
+            </div>
+
+            <div class="p-2.5 bg-slate-50 dark:bg-slate-700 border-t dark:border-slate-600 flex justify-end gap-2">
+                <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5">
+                    <i class="fas fa-print"></i> Print / Save PDF
+                </button>
+                <button onclick="closeInvoiceModal()" class="px-3.5 py-1.5 bg-slate-200 dark:bg-slate-600 text-slate-700 dark:text-white rounded-xl text-xs font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STANDARDIZED COMPACT & CENTERED BOTTOM NAVIGATION BAR -->
+    <div style="position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important; z-index: 999999 !important; display: flex !important; justify-content: center !important; pointer-events: none !important;">
+        <div style="pointer-events: auto !important; background-color: #ffffff !important; border-top: 1px solid #cbd5e1 !important; border-left: 1px solid #cbd5e1 !important; border-right: 1px solid #cbd5e1 !important; border-top-left-radius: 16px !important; border-top-right-radius: 16px !important; box-shadow: 0 -4px 20px rgba(0,0,0,0.12) !important; width: 100% !important; max-width: 420px !important;" class="dark:!bg-slate-800 dark:!border-slate-700">
+            <nav style="display: flex !important; justify-content: space-around !important; align-items: center !important; padding: 8px 12px !important;">
+                <button onclick="switchTab('home')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-weight: 500; font-size: 10px;" class="dark:text-slate-400">
+                    <i class="fas fa-home" style="font-size: 16px; margin-bottom: 2px;"></i> Home
+                </button>
+                <button onclick="switchTab('files')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-weight: 500; font-size: 10px;" class="dark:text-slate-400">
+                    <i class="fas fa-folder-open" style="font-size: 16px; margin-bottom: 2px;"></i> Files
+                </button>
+                <button onclick="switchTab('customers')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #4f46e5; font-weight: bold; font-size: 10px;" class="dark:text-indigo-400">
+                    <i class="fas fa-users" style="font-size: 16px; margin-bottom: 2px;"></i> Customers
+                </button>
+                <button onclick="switchTab('settings')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-weight: 500; font-size: 10px;" class="dark:text-slate-400">
+                    <i class="fas fa-cog" style="font-size: 16px; margin-bottom: 2px;"></i> Settings
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwDJ6kfcwqhMmvjNtJfwrlpZpujI5HU-x2ES8hnDx6XvHDYnUZ44boLb41JbUQ8DAd6/exec";
+        let bookings = [];
+        let activePackagePrice = 14999;
+        let activePackageName = '';
+        let defaultEventsList = [];
+        let defaultSetupName = '';
+        let hasPhotoOption = false;
+        let currentSelectedPkgObj = null;
+
+        window.onload = function() {
+            applyGlobalThemeAndBranding();
+            fetchBookings();
+            renderDynamicPackages();
+            initSignatureCanvas();
+
+            window.addEventListener('click', function(e) {
+                const menu = document.getElementById('topDropdownMenu');
+                if(!e.target.closest('header')) {
+                    menu.classList.add('hidden');
+                }
+            });
+        };
+
+        function toggleTopMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('topDropdownMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function switchTab(tabName) {
+            if(tabName === 'home') window.location.href = "Home.html";
+            else if(tabName === 'files') window.location.href = "Files.html";
+            else if(tabName === 'customers') return;
+            else if(tabName === 'settings') window.location.href = "Setting.html";
+        }
+
+        function applyGlobalThemeAndBranding() {
+            if(localStorage.getItem('abcd_dark_mode') === 'true') {
+                document.documentElement.classList.add('dark');
+            }
+            const sName = localStorage.getItem('abcd_studio_name');
+            const sSub = localStorage.getItem('abcd_studio_tagline');
+            if(sName) {
+                document.getElementById('headerTitle').innerText = `🎬 ${sName}`;
+                document.getElementById('invStudioTitle').innerText = `🎬 ${sName}`;
+            }
+            if(sSub) {
+                document.getElementById('headerSubtitle').innerText = sSub;
+            }
+        }
+
+        function renderDynamicPackages() {
+            const container = document.getElementById('dynamicPackagesGrid');
+            container.innerHTML = '';
+            
+            let pkgs = [];
+            const saved = localStorage.getItem('abcd_admin_packages');
+            if(saved) {
+                try { pkgs = JSON.parse(saved); } catch(e){}
+            }
+            
+            if(pkgs.length === 0) {
+                pkgs = [
+                    { id: "pkg_1", title: "Grand Package (Drone + Photo + Video + 20 Sheets Album)", price: 14999, events: "Shadi, Tilak", setup: "Photo+Video+Drone", hasPhoto: true, image: "https://images.unsplash.com/photo-1519741497674-611481863552?w=500", desc: "Shadi & Tilak setup with Drone + 20 Sheets Photobook Album." },
+                    { id: "pkg_2", title: "3-Days Complete Video Package", price: 6999, events: "Tilak, Haldi, Shadi", setup: "Video Coverage", hasPhoto: false, image: "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=500", desc: "Tilak, Haldi aur Shadi teeno din ka full HD video coverage." },
+                    { id: "pkg_3", title: "3-Days Video + Special Bidai Coverage", price: 9999, events: "Tilak, Haldi, Shadi, Bidai", setup: "Video+Bidai", hasPhoto: false, image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=500", desc: "3-Days HD Video shoot + Bidai ceremony full coverage." },
+                    { id: "pkg_4", title: "Only Shadi HD Video Package", price: 4999, events: "Shadi", setup: "HD Video", hasPhoto: false, image: "https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=500", desc: "Keval Shadi ke din ka complete main stage & barat video recording." }
+                ];
+            }
+
+            pkgs.forEach(pkg => {
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-slate-700 hover:border-indigo-600 rounded-2xl p-3 shadow-sm cursor-pointer transition active:scale-95 space-y-2 group";
+                card.onclick = () => openPackageDetailModal(pkg);
+
+                card.innerHTML = `
+                    <div class="h-24 rounded-xl overflow-hidden relative shadow-inner bg-slate-900">
+                        <img src="${pkg.image || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=500'}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                        <span class="absolute bottom-2 right-2 bg-black/70 text-amber-300 font-bold text-xs px-2.5 py-0.5 rounded-lg">₹${parseFloat(pkg.price).toLocaleString()}</span>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-xs text-slate-900 dark:text-white group-hover:text-indigo-600 truncate">${pkg.title}</h4>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1">${pkg.desc || pkg.setup}</p>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openPackageDetailModal(pkg) {
+            currentSelectedPkgObj = pkg;
+            document.getElementById('modalPkgImage').src = pkg.image || 'https://images.unsplash.com/photo-1519741497674-611481863552?w=500';
+            document.getElementById('modalPkgPriceBadge').innerText = `₹${parseFloat(pkg.price).toLocaleString()}`;
+            document.getElementById('modalPkgTitle').innerText = pkg.title;
+            document.getElementById('modalPkgDesc').innerText = pkg.desc || "Complete cinematic wedding coverage tailored by ABCD Entertainment Studio.";
+            document.getElementById('modalPkgEvents').innerText = pkg.events;
+            document.getElementById('modalPkgSetup').innerText = pkg.setup;
+
+            document.getElementById('packageDetailModal').classList.remove('hidden');
+        }
+
+        function closePackageDetail() {
+            document.getElementById('packageDetailModal').classList.add('hidden');
+        }
+
+        function proceedFromModalToBooking() {
+            closePackageDetail();
+            if(currentSelectedPkgObj) {
+                const evArray = currentSelectedPkgObj.events.split(',').map(e => e.trim());
+                selectPackage(currentSelectedPkgObj.price, currentSelectedPkgObj.title, evArray, currentSelectedPkgObj.setup, currentSelectedPkgObj.hasPhoto);
+            }
+        }
+
+        function fetchBookings() {
+            fetch(GOOGLE_SHEET_URL, { redirect: "follow" })
+                .then(res => res.json())
+                .then(data => { bookings = data; })
+                .catch(err => console.error("Error fetching data:", err));
+        }
+
+        function getCustomerID(b) {
+            let id = b['Customer ID'] || b.CustomerID || b.customerid || b.custid || b.customerId;
+            return id ? String(id).trim() : '';
+        }
+        function getName(b) { return b['Name'] || b['Name '] || b.Name || b.name || 'N/A'; }
+        function getDate(b) {
+            let s = String(b.Date || b.date || '');
+            return s.includes('T') ? s.split('T')[0] : s;
+        }
+        function getEvent(b) { return b.Event || b.event || '-'; }
+        function getLocation(b) { return b.Location || b.location || '-'; }
+        function getTotal(b) { return parseFloat(b.Total || b.total || 0); }
+        function getAdvance(b) { return parseFloat(b.Advance || b.advance || 0); }
+        function getBaki(b) { return parseFloat(b.Baki || b.baki || 0); }
+        function getStatus(b) { return String(b.Status || b.status || 'ACTIVE').toUpperCase().trim(); }
+
+        function searchMyBooking() {
+            const inputID = document.getElementById('custSearchID').value.trim().toUpperCase();
+            const msgEl = document.getElementById('searchMessage');
+            const container = document.getElementById('customerResultContainer');
+            container.innerHTML = '';
+            msgEl.classList.add('hidden');
+
+            if(!inputID) {
+                msgEl.innerText = "Please enter your Customer ID!";
+                msgEl.className = "text-[11px] font-semibold text-red-500 block";
+                return;
+            }
+
+            const activeBookings = bookings.filter(b => getStatus(b) !== 'DELETED');
+            const myRecords = activeBookings.filter(b => getCustomerID(b).toUpperCase() === inputID);
+
+            if(myRecords.length === 0) {
+                msgEl.innerText = `No bookings found for Customer ID: ${inputID}`;
+                msgEl.className = "text-[11px] font-semibold text-amber-600 block";
+                return;
+            }
+
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            myRecords.forEach(b => {
+                const bDate = getDate(b);
+                const isCompleted = bDate < todayStr;
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-800 border-2 border-indigo-100 dark:border-slate-700 rounded-xl p-3 shadow-md space-y-2";
+                
+                const badgeHtml = isCompleted ? 
+                    `<span class="bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 border border-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fas fa-check-circle text-emerald-600"></i> Completed</span>` : 
+                    `<span class="bg-indigo-50 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-200 border border-indigo-200 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1"><i class="fas fa-clock"></i> Upcoming</span>`;
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b dark:border-slate-700 pb-1.5">
+                        <span class="font-mono bg-indigo-100 text-indigo-900 dark:bg-indigo-900 dark:text-indigo-200 font-bold text-xs px-2 py-0.5 rounded">ID: ${getCustomerID(b)}</span>
+                        ${badgeHtml}
+                    </div>
+                    <div class="pt-1">
+                        <h4 class="font-bold text-slate-900 dark:text-white text-sm">${getName(b)}</h4>
+                        <div class="text-xs text-indigo-700 dark:text-indigo-300 font-bold mt-0.5"><i class="far fa-calendar-alt mr-1"></i>Event Date: ${bDate} (${getEvent(b)})</div>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5"><i class="fas fa-map-marker-alt text-red-500 mr-1"></i>${getLocation(b)}</div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-1 bg-slate-50 dark:bg-slate-700/50 p-2 rounded-lg border dark:border-slate-600 text-center text-xs mt-2">
+                        <div><span class="text-[10px] text-slate-500 dark:text-slate-400">Total</span><br><b>₹${getTotal(b).toLocaleString()}</b></div>
+                        <div><span class="text-[10px] text-slate-500 dark:text-slate-400">Paid</span><br><b class="text-emerald-700 dark:text-emerald-400">₹${getAdvance(b).toLocaleString()}</b></div>
+                        <div><span class="text-[10px] text-slate-500 dark:text-slate-400">Baki</span><br><b class="text-red-600 dark:text-red-400">₹${getBaki(b).toLocaleString()}</b></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function selectPackage(price, name, eventsArr, setupName, includesPhoto) {
+            activePackagePrice = parseFloat(price);
+            activePackageName = name;
+            defaultEventsList = eventsArr;
+            defaultSetupName = setupName;
+            hasPhotoOption = includesPhoto;
+
+            document.getElementById('selectedPackageTitleDisplay').innerText = `Selected: ${name} (₹${activePackagePrice.toLocaleString()})`;
+            document.getElementById('bookingFormSection').classList.remove('hidden');
+
+            const albumSec = document.getElementById('albumUpgradeSection');
+            if(hasPhotoOption) {
+                albumSec.classList.remove('hidden');
+                document.getElementById('extraSheets').value = 0;
+            } else {
+                albumSec.classList.add('hidden');
+                document.getElementById('extraSheets').value = 0;
+            }
+
+            renderAutoEventRows();
+            recalculateTotal();
+            window.scrollTo({ top: document.getElementById('bookingFormSection').offsetTop - 60, behavior: 'smooth' });
+        }
+
+        function closeBookingForm() {
+            document.getElementById('bookingFormSection').classList.add('hidden');
+        }
+
+        function renderAutoEventRows() {
+            const container = document.getElementById('autoEventRowsContainer');
+            container.innerHTML = '';
+
+            defaultEventsList.forEach((evName) => {
+                const row = document.createElement('div');
+                row.className = "event-row bg-slate-50 dark:bg-slate-700/50 border dark:border-slate-600 p-2 rounded-xl space-y-1.5";
+                row.innerHTML = `
+                    <div class="grid grid-cols-12 gap-1.5 items-center">
+                        <div class="col-span-4">
+                            <label class="block text-[9px] font-bold text-slate-500 dark:text-slate-400">Date *</label>
+                            <input type="date" required class="event-date w-full border dark:border-slate-600 dark:bg-slate-700 rounded p-1 text-xs outline-none">
+                        </div>
+                        <div class="col-span-3">
+                            <label class="block text-[9px] font-bold text-slate-500 dark:text-slate-400">Event *</label>
+                            <input type="text" value="${evName}" readonly class="event-type w-full border dark:border-slate-600 bg-slate-100 dark:bg-slate-600 rounded p-1 text-xs font-bold text-indigo-900 dark:text-indigo-300 outline-none">
+                        </div>
+                        <div class="col-span-4">
+                            <label class="block text-[9px] font-bold text-slate-500 dark:text-slate-400">Setup</label>
+                            <input type="text" value="${defaultSetupName}" class="event-camera w-full border dark:border-slate-600 dark:bg-slate-700 rounded p-1 text-xs outline-none">
+                        </div>
+                        <div class="col-span-1 text-center pt-3">
+                            <button type="button" onclick="removeEventRow(this)" class="text-red-500"><i class="fas fa-times-circle"></i></button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addExtraEventRow() {
+            const container = document.getElementById('autoEventRowsContainer');
+            const row = document.createElement('div');
+            row.className = "event-row bg-slate-50 dark:bg-slate-700/50 border dark:border-slate-600 p-2 rounded-xl space-y-1.5";
+            row.innerHTML = `
+                <div class="grid grid-cols-12 gap-1.5 items-center">
+                    <div class="col-span-4">
+                        <label class="block text-[9px] font-bold text-slate-500 dark:text-slate-400">Date *</label>
+                        <input type="date" required class="event-date w-full border dark:border-slate-600 dark:bg-slate-700 rounded p-1 text-xs outline-none">
+                    </div>
+                    <div class="col-span-3">
+                        <label class="block text-[9px] font-bold text-slate-500 dark:text-slate-400">Event *</label>
+                        <input type="text" placeholder="Event Name..." class="event-type w-full border dark:border-slate-600 dark:bg-slate-700 rounded p-1 text-xs outline-none font-bold">
+                    </div>
+                    <div class="col-span-4">
+                        <label class="block text-[9px] font-bold text-slate-500 dark:text-slate-400">Setup</label>
+                        <input type="text" value="${defaultSetupName}" class="event-camera w-full border dark:border-slate-600 dark:bg-slate-700 rounded p-1 text-xs outline-none">
+                    </div>
+                    <div class="col-span-1 text-center pt-3">
+                        <button type="button" onclick="removeEventRow(this)" class="text-red-500"><i class="fas fa-times-circle"></i></button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(row);
+        }
+
+        function removeEventRow(btn) {
+            const rows = document.querySelectorAll('.event-row');
+            if(rows.length > 1) btn.closest('.event-row').remove();
+        }
+
+        let canvas, ctx, isDrawing = false, hasDrawnSig = false;
+        function initSignatureCanvas() {
+            canvas = document.getElementById('sigCanvas');
+            if(!canvas) return;
+            ctx = canvas.getContext('2d');
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            canvas.addEventListener('mousedown', startDrawing);
+            canvas.addEventListener('mousemove', draw);
+            canvas.addEventListener('mouseup', stopDrawing);
+            canvas.addEventListener('touchstart', startDrawing);
+            canvas.addEventListener('touchmove', draw);
+            canvas.addEventListener('touchend', stopDrawing);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true; hasDrawnSig = true;
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            ctx.beginPath();
+            ctx.moveTo(clientX - rect.left, clientY - rect.top);
+        }
+
+        function draw(e) {
+            if(!isDrawing) return;
+            if(e.cancelable) e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#1e1b4b';
+            ctx.lineTo(clientX - rect.left, clientY - rect.top);
+            ctx.stroke();
+        }
+
+        function stopDrawing() { isDrawing = false; }
+        function clearSignature() { 
+            if(ctx) { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+            hasDrawnSig = false;
+        }
+
+        function changeSheetCount(delta) {
+            const el = document.getElementById('extraSheets');
+            let val = parseInt(el.value) || 0;
+            val = Math.max(0, val + delta);
+            el.value = val;
+            recalculateTotal();
+        }
+
+        function recalculateTotal() {
+            const extraSheets = hasPhotoOption ? (parseInt(document.getElementById('extraSheets').value) || 0) : 0;
+            const extraCost = extraSheets * 150;
+            document.getElementById('extraSheetCostText').innerText = `+₹${extraCost.toLocaleString()} (${extraSheets} Extra Sheets)`;
+
+            const total = activePackagePrice + extraCost;
+            document.getElementById('custCalculatedTotal').value = total;
+            calcBaki();
+        }
+
+        function calcBaki() {
+            const total = parseFloat(document.getElementById('custCalculatedTotal').value) || 0;
+            const adv = parseFloat(document.getElementById('custAdvancePay').value) || 0;
+            const baki = Math.max(0, total - adv);
+            document.getElementById('custBakiText').innerText = `₹${baki.toLocaleString()}`;
+        }
+
+        function generate6DigitID() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let res = '';
+            for(let i=0; i<6; i++) res += chars.charAt(Math.floor(Math.random() * chars.length));
+            return res;
+        }
+
+        function openStaffModalFromMenu() {
+            document.getElementById('topDropdownMenu').classList.add('hidden');
+            document.getElementById('staffModal').classList.remove('hidden');
+        }
+        function closeStaffModal() { document.getElementById('staffModal').classList.add('hidden'); }
+
+        function openQuickInvoiceModal() {
+            document.getElementById('topDropdownMenu').classList.add('hidden');
+            calcQuickTotal();
+            document.getElementById('quickCalcModal').classList.remove('hidden');
+        }
+        function closeQuickInvoiceModal() { document.getElementById('quickCalcModal').classList.add('hidden'); }
+
+        function calcQuickTotal() {
+            const base = parseFloat(document.getElementById('quickBasePrice').value) || 0;
+            const extra = parseFloat(document.getElementById('quickExtraSheets').value) || 0;
+            const total = base + (extra * 150);
+            const adv = Math.round(total * 0.2);
+            document.getElementById('quickTotalText').innerText = `₹${total.toLocaleString()}`;
+            document.getElementById('quickAdvText').innerText = `₹${adv.toLocaleString()}`;
+        }
+
+        function triggerDataSync() {
+            document.getElementById('topDropdownMenu').classList.add('hidden');
+            fetchBookings();
+            alert("Data synced successfully from Google Sheet!");
+        }
+
+        function initiateBookingPayment(e) {
+            e.preventDefault();
+            if(!hasDrawnSig) {
+                alert("Please provide Customer Digital Signature!");
+                return;
+            }
+
+            const name = document.getElementById('custSelfName').value.trim();
+            const mobile = document.getElementById('custSelfMobile').value.trim();
+            const advance = parseFloat(document.getElementById('custAdvancePay').value) || 0;
+
+            if(advance <= 0) {
+                alert("Please enter valid advance amount.");
+                return;
+            }
+
+            var options = {
+                "key": "rzp_test_123456789abcdef",
+                "amount": advance * 100,
+                "currency": "INR",
+                "name": "ABCD Entertainment Studio",
+                "description": "Advance Booking Payment",
+                "image": "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+                "handler": function (response){
+                    submitVerifiedBooking(response.razorpay_payment_id || "TXN_" + Math.floor(Math.random()*1000000));
+                },
+                "prefill": { "name": name, "contact": mobile },
+                "theme": { "color": "#4f46e5" }
+            };
+
+            try {
+                var rzp1 = new Razorpay(options);
+                rzp1.open();
+            } catch(err) {
+                if(confirm("Simulate successful Razorpay test payment of ₹" + advance + "?")) {
+                    submitVerifiedBooking("TXN_TEST_" + Math.floor(Math.random()*100000));
+                }
+            }
+        }
+
+        function submitVerifiedBooking(txnId) {
+            const btn = document.getElementById('custSubmitBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving to Google Sheet...`;
+
+            const name = document.getElementById('custSelfName').value.trim();
+            const mobile = document.getElementById('custSelfMobile').value.trim();
+            const location = document.getElementById('custSelfLocation').value.trim();
+            
+            const extraSheets = hasPhotoOption ? (parseInt(document.getElementById('extraSheets').value) || 0) : 0;
+            const albumDetail = hasPhotoOption ? (extraSheets > 0 ? `20+${extraSheets} Sheets` : `20 Sheets`) : 'No Album';
+
+            const total = parseFloat(document.getElementById('custCalculatedTotal').value) || 0;
+            const advance = parseFloat(document.getElementById('custAdvancePay').value) || 0;
+            const baki = Math.max(0, total - advance);
+            const newCustID = generate6DigitID();
+            const staffSignData = canvas ? canvas.toDataURL('image/jpeg', 0.6) : "";
+
+            const rows = document.querySelectorAll('.event-row');
+            let batchItems = [];
+            let dateStrings = [];
+
+            rows.forEach(r => {
+                const date = r.querySelector('.event-date').value;
+                const event = r.querySelector('.event-type').value || 'Function';
+                const camera = r.querySelector('.event-camera').value || defaultSetupName;
+                if(date) dateStrings.push(date);
+
+                batchItems.push({
+                    customerId: newCustID, "Customer ID": newCustID,
+                    Name: name, name: name, Mobile: mobile, mobile: mobile,
+                    Location: location, location: location, Date: date, date: date,
+                    Event: event, event: event, Camera: camera, camera: camera,
+                    Total: total, total: total, Advance: advance, advance: advance,
+                    Baki: baki, baki: baki, Status: "ACTIVE", status: "ACTIVE",
+                    Note: `Razorpay Online Paid (${txnId}). Pkg: ${activePackageName}`, 
+                    Album: albumDetail, album: albumDetail,
+                    SubmitDate: new Date().toISOString().split('T')[0]
+                });
+            });
+
+            fetch(GOOGLE_SHEET_URL, {
+                method: "POST", mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ 
+                    action: "add_batch", items: batchItems, 
+                    staffSign: staffSignData, customerId: newCustID, customerName: name 
+                })
+            }).then(() => {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-shield-alt text-emerald-400"></i> Pay Advance & Generate Invoice`;
+                
+                document.getElementById('invCustName').innerText = name;
+                document.getElementById('invCustID').innerText = newCustID;
+                document.getElementById('invMobile').innerText = mobile;
+                document.getElementById('invLocation').innerText = location;
+                document.getElementById('invDatesList').innerText = dateStrings.join(', ');
+                document.getElementById('invPkgName').innerText = activePackageName;
+                document.getElementById('invPkgTotal').innerText = `₹${total.toLocaleString()}`;
+                document.getElementById('invAlbum').innerText = albumDetail;
+                document.getElementById('invPaid').innerText = `₹${advance.toLocaleString()}`;
+                document.getElementById('invBaki').innerText = `₹${baki.toLocaleString()}`;
+                document.getElementById('invTxnId').innerText = txnId;
+                document.getElementById('invSigImg').src = staffSignData;
+
+                document.getElementById('invoiceModal').classList.remove('hidden');
+                document.getElementById('custSelfBookingForm').reset();
+                document.getElementById('extraSheets').value = 0;
+                clearSignature();
+                closeBookingForm();
+                setTimeout(fetchBookings, 2000);
+            }).catch(err => {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-shield-alt text-emerald-400"></i> Pay Advance & Generate Invoice`;
+                alert("Booking submission error. Please try again.");
+            });
+        }
+
+        function closeInvoiceModal() {
+            document.getElementById('invoiceModal').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>

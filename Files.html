@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABCD ENTERTAINMENT STUDIO - Files Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 font-sans pb-24 select-none min-h-screen relative transition-colors duration-200">
+
+    <!-- Header with Top-Left Horizontal 3-Line Menu -->
+    <header class="bg-indigo-900 text-white shadow-md p-3 sticky top-0 z-40 flex items-center justify-between">
+        <!-- Top-Left Hamburger Menu (3 Horizontal Lines) -->
+        <div class="relative">
+            <button onclick="toggleTopMenu(event)" class="w-9 h-9 rounded-xl bg-indigo-800 hover:bg-indigo-700 flex items-center justify-center text-white transition focus:outline-none shadow-sm">
+                <i class="fas fa-bars text-sm"></i>
+            </button>
+            <!-- Dropdown Menu -->
+            <div id="topDropdownMenu" class="absolute left-0 mt-2 w-52 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-xl shadow-2xl border dark:border-slate-700 hidden py-1.5 z-50 text-xs">
+                <button onclick="switchTab('home')" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium transition">
+                    <i class="fas fa-calendar-check text-emerald-600 w-4"></i> Admin Bookings
+                </button>
+                <button onclick="switchTab('customers')" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium transition">
+                    <i class="fas fa-users text-indigo-600 w-4"></i> Customer Portal
+                </button>
+                <button onclick="switchTab('settings')" class="w-full text-left px-3.5 py-2.5 hover:bg-indigo-50 dark:hover:bg-slate-700 flex items-center gap-2.5 font-medium border-t dark:border-slate-700 mt-1 pt-2 transition">
+                    <i class="fas fa-cog text-slate-500 w-4"></i> Studio Settings
+                </button>
+            </div>
+        </div>
+
+        <div class="text-center flex-1 px-2">
+            <h1 class="text-base sm:text-lg font-bold tracking-wide truncate" id="headerTitle">🎬 ABCD ENTERTAINMENT STUDIO</h1>
+            <p class="text-[10px] text-indigo-200 truncate" id="headerSubtitle">Google Drive Cloud Storage Manager</p>
+        </div>
+
+        <div class="w-9"></div>
+    </header>
+
+    <main class="max-w-xl mx-auto p-3 space-y-3.5">
+        <!-- FILES VIEW (Google Drive Folder Manager) -->
+        <div id="filesView" class="space-y-3">
+            <div class="bg-white dark:bg-slate-800 p-3 rounded-xl border dark:border-slate-700 shadow-sm flex justify-between items-center">
+                <div>
+                    <h3 class="font-bold text-xs text-indigo-900 dark:text-indigo-300 flex items-center gap-1.5">
+                        <i class="fas fa-folder-open text-amber-500"></i> Google Drive Manager
+                    </h3>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5" id="currentFolderPath">Sign & Slip Folders</p>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="openNewFolderModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1 shadow">
+                        <i class="fas fa-folder-plus"></i> New Folder
+                    </button>
+                    <button onclick="fetchDriveFiles()" class="bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 text-slate-700 dark:text-slate-300 px-2.5 py-1.5 rounded-xl text-xs font-bold">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Breadcrumb Navigation -->
+            <div class="flex items-center gap-1 text-xs text-indigo-700 dark:text-indigo-300 font-semibold px-2 py-2 overflow-x-auto whitespace-nowrap bg-indigo-50/50 dark:bg-slate-800/60 rounded-xl border dark:border-slate-700" id="breadcrumbContainer">
+                <span onclick="navigateToFolder('root', 'Sign & Slip')" class="cursor-pointer hover:underline"><i class="fas fa-home"></i> Sign & Slip</span>
+            </div>
+
+            <!-- Drive Items Container -->
+            <div id="driveItemsContainer" class="space-y-2">
+                <div class="text-center p-8 text-slate-400 text-xs bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700 shadow-sm">
+                    <i class="fas fa-spinner fa-spin text-indigo-600 text-base mb-1"></i><br>Loading Sign & Slip folders...
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- New Subfolder Modal -->
+    <div id="newFolderModal" class="fixed inset-0 bg-slate-900/70 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-xl max-w-xs w-full overflow-hidden p-4 space-y-3">
+            <h3 class="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5"><i class="fas fa-folder-plus text-indigo-600"></i> Create Subfolder</h3>
+            <div>
+                <label class="block text-[10px] font-bold text-slate-600 dark:text-slate-400 mb-1">Folder Name *</label>
+                <input type="text" id="newFolderNameInput" placeholder="Subfolder Name..." class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeNewFolderModal()" class="px-3 py-1.5 border dark:border-slate-600 rounded-lg text-xs font-bold">Cancel</button>
+                <button onclick="createSubFolder()" class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow">Create</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Preview Modal -->
+    <div id="imageModal" class="fixed inset-0 bg-slate-900/80 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden flex flex-col p-4 space-y-3">
+            <div class="flex justify-between items-center border-b dark:border-slate-700 pb-2">
+                <h3 class="font-bold text-xs text-slate-900 dark:text-white truncate pr-2" id="previewTitle">Image Preview</h3>
+                <button onclick="closeImageModal()" class="text-slate-400 hover:text-red-600 text-lg font-bold">&times;</button>
+            </div>
+            <div class="flex justify-center items-center bg-slate-100 dark:bg-slate-900 rounded-xl p-2 max-h-[65vh] overflow-auto">
+                <img id="previewImg" src="" alt="Preview" class="max-h-[55vh] object-contain rounded">
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <a id="downloadBtn" href="" target="_blank" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold shadow flex items-center gap-1.5"><i class="fas fa-download"></i> Download</a>
+                <button onclick="closeImageModal()" class="px-3.5 py-1.5 bg-slate-200 dark:bg-slate-700 rounded-xl text-xs font-bold">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STANDARDIZED COMPACT & CENTERED BOTTOM NAVIGATION BAR -->
+    <div style="position: fixed !important; bottom: 0 !important; left: 0 !important; width: 100% !important; z-index: 999999 !important; display: flex !important; justify-content: center !important; pointer-events: none !important;">
+        <div style="pointer-events: auto !important; background-color: #ffffff !important; border-top: 1px solid #cbd5e1 !important; border-left: 1px solid #cbd5e1 !important; border-right: 1px solid #cbd5e1 !important; border-top-left-radius: 16px !important; border-top-right-radius: 16px !important; box-shadow: 0 -4px 20px rgba(0,0,0,0.12) !important; width: 100% !important; max-width: 420px !important;" class="dark:!bg-slate-800 dark:!border-slate-700">
+            <nav style="display: flex !important; justify-content: space-around !important; align-items: center !important; padding: 8px 12px !important;">
+                <button onclick="switchTab('home')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-weight: 500; font-size: 10px;" class="dark:text-slate-400">
+                    <i class="fas fa-home" style="font-size: 16px; margin-bottom: 2px;"></i> Home
+                </button>
+                <button onclick="switchTab('files')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #4f46e5; font-weight: bold; font-size: 10px;" class="dark:text-indigo-400">
+                    <i class="fas fa-folder-open" style="font-size: 16px; margin-bottom: 2px;"></i> Files
+                </button>
+                <button onclick="switchTab('customers')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-weight: 500; font-size: 10px;" class="dark:text-slate-400">
+                    <i class="fas fa-users" style="font-size: 16px; margin-bottom: 2px;"></i> Customers
+                </button>
+                <button onclick="switchTab('settings')" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-weight: 500; font-size: 10px;" class="dark:text-slate-400">
+                    <i class="fas fa-cog" style="font-size: 16px; margin-bottom: 2px;"></i> Settings
+                </button>
+            </nav>
+        </div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEET_URL = "https://script.google.com/macros/s/AKfycbwDJ6kfcwqhMmvjNtJfwrlpZpujI5HU-x2ES8hnDx6XvHDYnUZ44boLb41JbUQ8DAd6/exec";
+        
+        let currentFolderId = "root"; 
+        let folderBreadcrumbs = [{ id: "root", name: "Sign & Slip" }];
+
+        window.onload = function() {
+            applyGlobalThemeAndBranding();
+            fetchDriveFiles();
+
+            window.addEventListener('click', function(e) {
+                const menu = document.getElementById('topDropdownMenu');
+                if(!e.target.closest('header')) {
+                    menu.classList.add('hidden');
+                }
+            });
+        };
+
+        function toggleTopMenu(e) {
+            e.stopPropagation();
+            const menu = document.getElementById('topDropdownMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        function switchTab(tabName) {
+            if(tabName === 'home') window.location.href = "Home.html";
+            else if(tabName === 'files') return;
+            else if(tabName === 'customers') window.location.href = "Customers.html";
+            else if(tabName === 'settings') window.location.href = "Setting.html";
+        }
+
+        function applyGlobalThemeAndBranding() {
+            if(localStorage.getItem('abcd_dark_mode') === 'true') {
+                document.documentElement.classList.add('dark');
+            }
+            const sName = localStorage.getItem('abcd_studio_name');
+            const sSub = localStorage.getItem('abcd_studio_tagline');
+            if(sName) {
+                document.getElementById('headerTitle').innerText = `🎬 ${sName}`;
+            }
+            if(sSub) {
+                document.getElementById('headerSubtitle').innerText = sSub;
+            }
+        }
+
+        function fetchDriveFiles() {
+            const container = document.getElementById('driveItemsContainer');
+            container.innerHTML = `<div class="text-center p-6 text-slate-400 text-xs bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700"><i class="fas fa-spinner fa-spin mr-1"></i> Loading Folders...</div>`;
+
+            const reqUrl = `${GOOGLE_SHEET_URL}?action=get_drive_files&folderId=${encodeURIComponent(currentFolderId)}`;
+
+            fetch(reqUrl, { redirect: "follow" })
+                .then(res => res.json())
+                .then(data => {
+                    renderDriveItems(data);
+                })
+                .catch(err => {
+                    console.error("Fetch Error:", err);
+                    container.innerHTML = `<div class="text-center p-6 text-red-500 text-xs bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700">⚠️ Failed to load folders.</div>`;
+                });
+        }
+
+        function getDirectDriveViewLink(url, fileId) {
+            if(fileId) {
+                return `https://lh3.googleusercontent.com/d/${fileId}`;
+            }
+            if(url && url.includes('id=')) {
+                let match = url.match(/id=([a-zA-Z0-9_-]+)/);
+                if(match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            if(url && url.includes('/d/')) {
+                let match = url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+                if(match && match[1]) return `https://lh3.googleusercontent.com/d/${match[1]}`;
+            }
+            return url;
+        }
+
+        function renderDriveItems(items) {
+            const container = document.getElementById('driveItemsContainer');
+            container.innerHTML = '';
+
+            if(!items || !Array.isArray(items) || items.length === 0) {
+                container.innerHTML = `<div class="text-center p-6 text-slate-400 text-xs bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700 shadow-sm">No items found in this folder.</div>`;
+                return;
+            }
+
+            if(items.id === "error") {
+                container.innerHTML = `<div class="text-center p-6 text-red-500 text-xs bg-white dark:bg-slate-800 rounded-xl border dark:border-slate-700">⚠️ Drive Error: ${items.name}</div>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const itemName = item.name || item.Name || 'Unnamed Item';
+                const itemId = item.id || item.ID || '';
+                const mime = item.mimeType || item.MimeType || '';
+                const isFolder = mime.includes('folder') || mime === 'application/vnd.google-apps.folder';
+
+                const el = document.createElement('div');
+                el.className = "bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-3 shadow-sm flex justify-between items-center hover:bg-slate-50 dark:hover:bg-slate-700/50 transition";
+                
+                if(isFolder) {
+                    el.innerHTML = `
+                        <div class="folder-click-target flex items-center gap-2.5 cursor-pointer flex-1 overflow-hidden">
+                            <i class="fas fa-folder text-amber-500 text-lg"></i>
+                            <div class="truncate">
+                                <div class="font-bold text-slate-900 dark:text-white text-xs truncate">${itemName}</div>
+                                <div class="text-[10px] text-slate-400">Folder</div>
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-right text-slate-300 dark:text-slate-600 text-xs pr-1"></i>
+                    `;
+                    
+                    const targetEl = el.querySelector('.folder-click-target');
+                    targetEl.onclick = function() {
+                        openSubFolder(itemId, itemName);
+                    };
+                } else {
+                    const viewLink = item.webViewLink || '#';
+                    const directView = getDirectDriveViewLink(viewLink, itemId);
+                    const downloadLink = item.webContentLink || viewLink;
+                    
+                    el.innerHTML = `
+                        <div class="flex items-center gap-2.5 flex-1 overflow-hidden">
+                            <i class="fas fa-file-image text-indigo-500 text-lg"></i>
+                            <div class="truncate">
+                                <div class="font-bold text-slate-900 dark:text-white text-xs truncate">${itemName}</div>
+                                <div class="text-[10px] text-slate-400">File</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-1.5 ml-2">
+                            <button onclick="openImageModal('${directView}', '${itemName}', '${downloadLink}')" class="bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300 px-2.5 py-1 rounded-lg text-[10px] font-bold border border-blue-200 dark:border-blue-800">View</button>
+                            <a href="${downloadLink}" target="_blank" class="bg-emerald-50 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 px-2.5 py-1 rounded-lg text-[10px] font-bold border border-emerald-200 dark:border-emerald-800"><i class="fas fa-download"></i></a>
+                        </div>
+                    `;
+                }
+                container.appendChild(el);
+            });
+        }
+
+        function openImageModal(imgUrl, title, downloadUrl) {
+            document.getElementById('previewTitle').innerText = title;
+            document.getElementById('previewImg').src = imgUrl;
+            document.getElementById('downloadBtn').href = downloadUrl;
+            document.getElementById('imageModal').classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('imageModal').classList.add('hidden');
+            document.getElementById('previewImg').src = '';
+        }
+
+        function openSubFolder(folderId, folderName) {
+            if (!folderId) return;
+            currentFolderId = folderId;
+            folderBreadcrumbs.push({ id: folderId, name: folderName });
+            updateBreadcrumbUI();
+            fetchDriveFiles();
+        }
+
+        function navigateToFolder(folderId, folderName) {
+            const index = folderBreadcrumbs.findIndex(f => f.id === folderId);
+            if(index !== -1) {
+                folderBreadcrumbs = folderBreadcrumbs.slice(0, index + 1);
+            } else {
+                folderBreadcrumbs = [{ id: "root", name: "Sign & Slip" }];
+            }
+            currentFolderId = folderBreadcrumbs[folderBreadcrumbs.length - 1].id;
+            updateBreadcrumbUI();
+            fetchDriveFiles();
+        }
+
+        function updateBreadcrumbUI() {
+            const bc = document.getElementById('breadcrumbContainer');
+            bc.innerHTML = '';
+            folderBreadcrumbs.forEach((f) => {
+                const span = document.createElement('span');
+                span.className = "cursor-pointer hover:underline flex items-center gap-1 font-semibold text-xs";
+                span.innerHTML = `<i class="fas fa-chevron-right text-[9px] text-slate-400"></i> ${f.name}`;
+                span.onclick = () => navigateToFolder(f.id, f.name);
+                bc.appendChild(span);
+            });
+            document.getElementById('currentFolderPath').innerText = folderBreadcrumbs[folderBreadcrumbs.length - 1].name;
+        }
+
+        function openNewFolderModal() { document.getElementById('newFolderModal').classList.remove('hidden'); }
+        function closeNewFolderModal() { document.getElementById('newFolderModal').classList.add('hidden'); document.getElementById('newFolderNameInput').value = ''; }
+
+        function createSubFolder() {
+            const folderName = document.getElementById('newFolderNameInput').value.trim();
+            if(!folderName) { alert("Please enter folder name"); return; }
+
+            fetch(GOOGLE_SHEET_URL, {
+                method: "POST", mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "create_folder", parentId: currentFolderId, folderName: folderName })
+            }).then(() => {
+                closeNewFolderModal();
+                setTimeout(fetchDriveFiles, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
