@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ABCD ENTERTAINMENT STUDIO - Home</title>
+    <base href="/ABCD-Epower-House/">
+    <title>ABCD Entertainment Studio - Home</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -11,16 +12,20 @@
         }
     </script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        mark {
+            background-color: #fef08a;
+            color: #854d0e;
+            padding: 0 2px;
+            border-radius: 2px;
+            font-weight: bold;
+        }
+        .dark mark {
+            background-color: #854d0e;
+            color: #fef08a;
+        }
+    </style>
 </head>
-
-<head>
-    <meta charset="UTF-8">
-    <base href="/ABCD-Epower-House/">
-    <title>ABCD Entertainment Studio</title>
-    <!-- baki ki styles aur links -->
-</head>
-
-
 
 <body class="bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-100 font-sans pb-40 select-none transition-colors duration-200">
 
@@ -55,25 +60,28 @@
 
         <!-- Summary Cards Grid -->
         <div class="grid grid-cols-3 gap-2 text-center">
-            <div class="bg-indigo-50 dark:bg-slate-800 p-2.5 rounded-xl border border-indigo-100 dark:border-slate-700 shadow-sm">
+            <div onclick="toggleActiveFilter()" class="bg-indigo-50 dark:bg-slate-800 p-2.5 rounded-xl border border-indigo-100 dark:border-slate-700 shadow-sm cursor-pointer active:scale-95 transition">
                 <div class="text-lg font-bold text-indigo-900 dark:text-indigo-300" id="statBookings">0</div>
-                <div class="text-[10px] text-indigo-700 dark:text-indigo-400 font-bold uppercase">Active</div>
+                <div class="text-[10px] text-indigo-700 dark:text-indigo-400 font-bold uppercase underline" id="activeCardLabel">ACTIVE BOOKINGS</div>
             </div>
 
             <div onclick="openMonthSitesModal()" class="bg-blue-50 dark:bg-slate-800 p-2.5 rounded-xl border border-blue-100 dark:border-slate-700 shadow-sm cursor-pointer active:scale-95 transition">
                 <div class="text-lg font-bold text-blue-900 dark:text-blue-300" id="statThisMonthSites">0</div>
-                <div class="text-[10px] text-blue-700 dark:text-blue-400 font-bold uppercase underline">Month Sites</div>
+                <div class="text-[10px] text-blue-700 dark:text-blue-400 font-bold uppercase underline" id="monthCardLabel">THIS MONTH</div>
             </div>
 
             <div onclick="openClashesModal()" class="bg-amber-50 dark:bg-slate-800 p-2.5 rounded-xl border border-amber-200 dark:border-slate-700 shadow-sm cursor-pointer active:scale-95 transition">
                 <div class="text-lg font-bold text-amber-900 dark:text-amber-300" id="statClashes">0</div>
-                <div class="text-[10px] text-amber-800 dark:text-amber-400 font-bold uppercase underline">Clashes</div>
+                <div class="text-[10px] text-amber-800 dark:text-amber-400 font-bold uppercase underline">CLASHES</div>
             </div>
         </div>
 
-        <!-- Sync Status -->
+        <!-- Sync Status & Back to All Bookings Option -->
         <div class="flex justify-between items-center px-1">
-            <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Bookings List (Latest First)</span>
+            <span class="text-xs font-bold text-slate-500 dark:text-slate-400 flex items-center gap-2">
+                <span id="listHeadingLabel">Bookings List (Latest First)</span>
+                <button id="resetFilterBtn" onclick="resetAllBookingsView()" class="hidden text-[10px] bg-indigo-600 text-white px-2 py-0.5 rounded-full font-bold shadow">Show All ↺</button>
+            </span>
             <span class="text-[11px] font-semibold text-slate-500 dark:text-slate-400" id="syncStatus">Connecting to Server...</span>
         </div>
 
@@ -82,8 +90,8 @@
 
     </main>
 
-    <!-- FLOATING BOTTOM NAVIGATION BAR (UNIFORM DESIGN) -->
-    <div style="position: fixed !important; bottom: 12px !important; left: 50% !important; transform: translateX(-50%) !important; width: 92% !important; max-width: 500px !important; z-index: 999999 !important; background-color: #ffffff !important; border: 1px solid #cbd5e1 !important; border-radius: 16px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.25) !important;" class="dark:!bg-slate-800 dark:!border-slate-700">
+    <!-- FLOATING BOTTOM NAVIGATION BAR -->
+    <div id="bottomNavContainer" style="position: fixed !important; bottom: 12px !important; left: 50% !important; transform: translateX(-50%) !important; width: 92% !important; max-width: 500px !important; z-index: 999999 !important; background-color: #ffffff !important; border: 1px solid #cbd5e1 !important; border-radius: 16px !important; box-shadow: 0 10px 25px rgba(0,0,0,0.25) !important;" class="dark:!bg-slate-800 dark:!border-slate-700">
         <nav style="display: flex !important; justify-content: space-around !important; align-items: center !important; padding: 10px 0 !important;">
             <button onclick="switchTab('home')" id="navHome" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; color: #4f46e5; font-weight: bold; font-size: 11px;" class="dark:text-indigo-400">
                 <i class="fas fa-home" style="font-size: 18px; margin-bottom: 2px;"></i> Home
@@ -111,14 +119,79 @@
         </div>
     </div>
 
-    <!-- Edit / Manage Booking Modal -->
+    <!-- Full Details Edit Modal -->
     <div id="editModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden max-h-[90vh] flex flex-col">
             <div class="bg-amber-700 text-white px-5 py-3.5 flex justify-between items-center">
-                <h3 class="font-bold text-base"><i class="fas fa-edit mr-1.5"></i> Edit / Manage Booking</h3>
+                <h3 class="font-bold text-base"><i class="fas fa-edit mr-1.5"></i> Edit Customer Booking Details</h3>
                 <button onclick="closeEditModal()" class="text-amber-100 hover:text-white text-xl">&times;</button>
             </div>
-            <div class="p-5 space-y-4 overflow-y-auto flex-1" id="editModalContent"></div>
+            <form id="fullEditForm" onsubmit="saveFullEditedBooking(event)" class="p-4 space-y-3 overflow-y-auto flex-1 text-xs">
+                <input type="hidden" id="editCustId">
+                <input type="hidden" id="editOriginalDate">
+                
+                <div class="bg-amber-50 dark:bg-slate-700/50 p-2.5 rounded-xl border border-amber-200 dark:border-slate-600 space-y-2">
+                    <div>
+                        <label class="block font-bold mb-0.5">Customer Name *</label>
+                        <input type="text" id="editName" required class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold mb-0.5">Mobile Number *</label>
+                            <input type="tel" id="editMobile" required class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-0.5">Event Date *</label>
+                            <input type="date" id="editEventDate" required class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-0.5">Location / Address</label>
+                        <input type="text" id="editLocation" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-bold mb-0.5">Event Type</label>
+                            <input type="text" id="editEvent" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-bold mb-0.5">Setup / Camera</label>
+                            <input type="text" id="editCamera" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-700/50 p-2.5 rounded-xl border dark:border-slate-600">
+                    <div>
+                        <label class="block font-bold mb-0.5">Total Package (₹)</label>
+                        <input type="number" id="editTotal" oninput="calcEditBaki()" required class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-0.5">Advance Paid (₹)</label>
+                        <input type="number" id="editAdvance" oninput="calcEditBaki()" required class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                    </div>
+                    <div class="col-span-2 flex justify-between items-center border-t dark:border-slate-600 pt-1 font-bold">
+                        <span>Calculated Baki:</span>
+                        <span id="editBakiText" class="text-red-600 text-sm">₹0</span>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div>
+                        <label class="block font-bold mb-0.5">Album Details</label>
+                        <input type="text" id="editAlbum" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold mb-0.5">Special Remarks / Note</label>
+                        <input type="text" id="editNote" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-1.5 text-xs outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2 border-t dark:border-slate-600">
+                    <button type="button" onclick="closeEditModal()" class="px-3 py-1.5 border dark:border-slate-600 rounded-lg font-medium">Cancel</button>
+                    <button type="submit" id="saveEditBtn" class="px-4 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-lg font-bold shadow">Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -228,6 +301,7 @@
                     <div>
                         <div class="flex justify-between items-center mb-0.5">
                             <label class="block font-bold text-slate-600 dark:text-slate-300"><i class="fas fa-signature"></i> Signature</label>
+                            <button type="button" onclick="openFullscreenSignature()" class="text-[10px] text-indigo-600 font-bold underline"><i class="fas fa-expand mr-1"></i>Full Screen</button>
                             <button type="button" onclick="clearSignature()" class="text-[10px] text-red-600 underline">Clear</button>
                         </div>
                         <canvas id="sigCanvas" width="300" height="90" class="border dark:border-slate-600 rounded-lg bg-slate-50 cursor-crosshair w-full"></canvas>
@@ -244,11 +318,41 @@
         </div>
     </div>
 
+    <!-- Fullscreen Signature Pad Modal -->
+    <div id="fullSigModal" class="fixed inset-0 bg-slate-900/90 hidden backdrop-blur-md z-50 flex flex-col p-3">
+        <div class="flex justify-between items-center text-white pb-2 border-b border-slate-700">
+            <h3 class="font-bold text-sm"><i class="fas fa-pen-nib text-indigo-400 mr-1.5"></i> Customer Signature Pad</h3>
+            <div class="flex items-center gap-2">
+                <button type="button" onclick="clearFullSignature()" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Clear</button>
+                <button type="button" onclick="saveFullSignature()" class="bg-emerald-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Done</button>
+            </div>
+        </div>
+
+        <!-- Pen Control Tools -->
+        <div class="flex items-center justify-between bg-slate-800 p-2 my-2 rounded-xl text-xs text-white border border-slate-700">
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-slate-400">Color:</span>
+                <button onclick="setPenColor('#1e1b4b')" class="w-6 h-6 rounded-full bg-indigo-950 border-2 border-white focus:scale-110"></button>
+                <button onclick="setPenColor('#2563eb')" class="w-6 h-6 rounded-full bg-blue-600 border-2 border-white focus:scale-110"></button>
+                <button onclick="setPenColor('#dc2626')" class="w-6 h-6 rounded-full bg-red-600 border-2 border-white focus:scale-110"></button>
+                <button onclick="setPenColor('#16a34a')" class="w-6 h-6 rounded-full bg-emerald-600 border-2 border-white focus:scale-110"></button>
+            </div>
+            <div class="flex items-center gap-1.5">
+                <span class="text-[10px] font-bold text-slate-400">Pen Size:</span>
+                <input type="range" id="penWidthRange" min="1" max="10" value="3" onchange="setPenWidth(this.value)" class="w-20">
+            </div>
+        </div>
+
+        <div class="flex-1 bg-white rounded-2xl overflow-hidden relative shadow-inner">
+            <canvas id="fullCanvas" class="w-full h-full cursor-crosshair"></canvas>
+        </div>
+    </div>
+
     <!-- Month Sites Filter Modal -->
     <div id="monthSitesModal" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white dark:bg-slate-800 dark:text-white rounded-2xl shadow-xl max-w-md w-full overflow-hidden max-h-[85vh] flex flex-col">
             <div class="bg-blue-700 text-white px-4 py-3 flex justify-between items-center">
-                <h3 class="font-bold text-sm"><i class="fas fa-calendar-alt mr-1.5"></i> Sites Filter</h3>
+                <h3 class="font-bold text-sm"><i class="fas fa-calendar-alt mr-1.5"></i> This Month Sites Filter</h3>
                 <button onclick="closeMonthSitesModal()" class="text-blue-100 hover:text-white text-xl">&times;</button>
             </div>
             <div class="p-3 bg-blue-50 dark:bg-slate-700 border-b dark:border-slate-600 flex items-center justify-between gap-2">
@@ -305,6 +409,10 @@
         let globalComingDates = [];
         let globalCompletedDates = [];
         let globalDateGroups = {};
+        let activeFilterOnly = false;
+
+        let currentColor = '#1e1b4b';
+        let currentLineWidth = 3;
 
         let touchStartY = 0;
         let touchMoveY = 0;
@@ -328,6 +436,14 @@
             }
             if(sSub) {
                 document.getElementById('headerSubtitle').innerText = sSub;
+            }
+        }
+
+        function setBottomNavVisibility(isHidden) {
+            const nav = document.getElementById('bottomNavContainer');
+            if(nav) {
+                if(isHidden) nav.classList.add('hidden');
+                else nav.classList.remove('hidden');
             }
         }
 
@@ -465,6 +581,7 @@
                 .then(res => res.json())
                 .then(data => {
                     bookings = data;
+                    checkAndUpdatePastStatuses();
                     processAndRender();
                     document.getElementById('syncStatus').innerText = "✔️ Live Server Connected";
                     document.getElementById('syncStatus').className = "text-[11px] text-emerald-600 font-semibold";
@@ -475,7 +592,52 @@
                 });
         }
 
-        function applySmoothSearch() { processAndRender(); }
+        function checkAndUpdatePastStatuses() {
+            const todayStr = new Date().toISOString().split('T')[0];
+            bookings.forEach(b => {
+                if(getStatus(b) !== 'DELETED') {
+                    const bDate = getDate(b);
+                    if(bDate && bDate < todayStr && getStatus(b) === 'ACTIVE') {
+                        b.Status = 'DEACTIVE';
+                        // Automatically sync status change to Google Sheet column
+                        fetch(GOOGLE_SHEET_URL, {
+                            method: "POST", mode: "no-cors",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ action: "status", uid: getCustomerID(b), name: getName(b), date: bDate, status: "DEACTIVE" })
+                        }).catch(err => {});
+                    }
+                }
+            });
+        }
+
+        function applySmoothSearch() { 
+            processAndRender(); 
+        }
+
+        function toggleActiveFilter() {
+            activeFilterOnly = !activeFilterOnly;
+            const resetBtn = document.getElementById('resetFilterBtn');
+            if(activeFilterOnly) {
+                resetBtn.classList.remove('hidden');
+            } else {
+                resetBtn.classList.add('hidden');
+            }
+            processAndRender();
+        }
+
+        function resetAllBookingsView() {
+            activeFilterOnly = false;
+            document.getElementById('resetFilterBtn').classList.add('hidden');
+            document.getElementById('searchInput').value = '';
+            processAndRender();
+        }
+
+        function highlightMatch(text, query) {
+            if(!query || !text) return text;
+            const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const regex = new RegExp(`(${escaped})`, 'gi');
+            return String(text).replace(regex, '<mark>$1</mark>');
+        }
 
         function processAndRender() {
             const todayStr = new Date().toISOString().split('T')[0];
@@ -484,21 +646,9 @@
 
             let activeList = bookings.filter(b => getStatus(b) !== 'DELETED');
 
-            if(searchVal) {
-                activeList = activeList.filter(b => {
-                    return getCustomerID(b).toLowerCase().includes(searchVal) ||
-                           getName(b).toLowerCase().includes(searchVal) ||
-                           getMobile(b).toLowerCase().includes(searchVal) ||
-                           getDate(b).toLowerCase().includes(searchVal) ||
-                           getLocation(b).toLowerCase().includes(searchVal) ||
-                           getEvent(b).toLowerCase().includes(searchVal) ||
-                           getNote(b).toLowerCase().includes(searchVal);
-                });
-            }
-
-            activeList.reverse();
-
-            document.getElementById('statBookings').innerText = activeList.length;
+            // Active count calculation (Date >= Today & Status != DEACTIVE)
+            const trueActiveList = activeList.filter(b => getDate(b) >= todayStr && getStatus(b) !== 'DEACTIVE');
+            document.getElementById('statBookings').innerText = trueActiveList.length;
 
             let thisMonthCount = activeList.filter(b => {
                 let d = getDate(b);
@@ -515,23 +665,46 @@
             Object.values(dateCounts).forEach(c => { if(c > 1) clashCount += c; });
             document.getElementById('statClashes').innerText = clashCount;
 
-            renderCards(activeList, todayStr);
+            // Apply Active Filter Click
+            if(activeFilterOnly) {
+                activeList = trueActiveList;
+                document.getElementById('listHeadingLabel').innerText = "Filtered: ACTIVE Bookings";
+                document.getElementById('resetFilterBtn').classList.remove('hidden');
+            } else {
+                document.getElementById('listHeadingLabel').innerText = "Bookings List (Latest First)";
+            }
+
+            // Real-time Text Search Filter
+            if(searchVal) {
+                activeList = activeList.filter(b => {
+                    return getCustomerID(b).toLowerCase().includes(searchVal) ||
+                           getName(b).toLowerCase().includes(searchVal) ||
+                           getMobile(b).toLowerCase().includes(searchVal) ||
+                           getDate(b).toLowerCase().includes(searchVal) ||
+                           getLocation(b).toLowerCase().includes(searchVal) ||
+                           getEvent(b).toLowerCase().includes(searchVal) ||
+                           getNote(b).toLowerCase().includes(searchVal);
+                });
+            }
+
+            activeList.reverse();
+            renderCards(activeList, todayStr, searchVal);
             renderTrash();
         }
 
-        function renderCards(list, todayStr) {
+        function renderCards(list, todayStr, searchVal) {
             const container = document.getElementById('bookingCardsContainer');
             container.innerHTML = '';
 
             if(!list || list.length === 0) {
-                container.innerHTML = `<div class="p-6 text-center text-slate-400 font-medium text-xs bg-white dark:bg-slate-800 rounded-xl shadow-sm border dark:border-slate-700">No active bookings found.</div>`;
+                container.innerHTML = `<div class="p-6 text-center text-slate-400 font-medium text-xs bg-white dark:bg-slate-800 rounded-xl shadow-sm border dark:border-slate-700">No bookings found.</div>`;
                 return;
             }
 
             list.forEach(b => {
                 const bDate = getDate(b);
                 const bName = getName(b);
-                const isUpcoming = bDate >= todayStr;
+                const isUpcoming = bDate >= todayStr && getStatus(b) !== 'DEACTIVE';
 
                 const card = document.createElement('div');
                 card.className = "bg-white dark:bg-slate-800 border dark:border-slate-700 rounded-xl p-3 shadow-sm hover:shadow transition active:scale-[0.99] cursor-pointer relative";
@@ -540,21 +713,26 @@
                     openDetailModal(b);
                 };
 
+                const dispEvent = highlightMatch(getEvent(b), searchVal);
+                const dispDate = highlightMatch(bDate, searchVal);
+                const dispName = highlightMatch(bName, searchVal);
+                const dispLoc = highlightMatch(getLocation(b), searchVal);
+
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-1.5">
                         <div class="flex items-center gap-1.5">
-                            <span class="bg-indigo-600 text-white font-bold text-xs px-2 py-0.5 rounded-md">${getEvent(b)}</span>
-                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><i class="far fa-calendar-alt text-indigo-500 mr-1"></i>Event Date: ${bDate}</span>
+                            <span class="bg-indigo-600 text-white font-bold text-xs px-2 py-0.5 rounded-md">${dispEvent}</span>
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300"><i class="far fa-calendar-alt text-indigo-500 mr-1"></i>Date: ${dispDate}</span>
                         </div>
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isUpcoming ? 'bg-indigo-50 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-700' : 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 border dark:border-slate-600'}">
-                            ${isUpcoming ? '⏳ Upcoming' : '✔️ Past'}
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isUpcoming ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700' : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 border dark:border-slate-600'}">
+                            ${isUpcoming ? '🟢 Active' : '⚪ Deactive'}
                         </span>
                     </div>
 
                     <div class="flex justify-between items-end border-t dark:border-slate-700 pt-2 mt-1">
                         <div>
-                            <div class="font-bold text-slate-900 dark:text-white text-sm">${bName}</div>
-                            <div class="text-[11px] text-slate-500 dark:text-slate-400"><i class="fas fa-map-marker-alt text-red-400 mr-1"></i>${getLocation(b)}</div>
+                            <div class="font-bold text-slate-900 dark:text-white text-sm">${dispName}</div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400"><i class="fas fa-map-marker-alt text-red-400 mr-1"></i>${dispLoc}</div>
                         </div>
                         <div class="text-right">
                             <div class="text-xs font-bold text-slate-900 dark:text-white">₹${getTotal(b).toLocaleString()}</div>
@@ -567,6 +745,7 @@
         }
 
         function openDetailModal(b) {
+            setBottomNavVisibility(true); // hide bottom nav
             document.getElementById('detailModal').classList.remove('hidden');
             const sigLink = getSigLink(b);
             const slipLink = getSlipLink(b);
@@ -639,57 +818,115 @@
                         ${slipImageHtml}
                     </div>
 
-                    <div class="pt-2 border-t dark:border-slate-600 flex justify-end">
-                        <button onclick="closeDetailModal(); openEditModal('${custId}', '${bName}', '${eventDate}');" class="bg-amber-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow">
-                            <i class="fas fa-edit mr-1"></i> Edit / Manage
+                    <!-- 2 CLEAR OPTIONS ON VIEW: EDIT & DELETE -->
+                    <div class="pt-2 border-t dark:border-slate-600 flex justify-between gap-2">
+                        <button onclick="closeDetailModal(); deleteBooking('${custId}', '${bName}', '${eventDate}');" class="bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-900/50 dark:text-red-300 px-3 py-2 rounded-lg text-xs font-bold shadow flex items-center gap-1">
+                            <i class="fas fa-trash"></i> Delete This Booking
+                        </button>
+                        <button onclick="closeDetailModal(); openEditModal('${custId}', '${bName}', '${eventDate}');" class="bg-amber-600 hover:bg-amber-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow flex items-center gap-1">
+                            <i class="fas fa-edit"></i> Edit Booking Details
                         </button>
                     </div>
                 </div>
             `;
         }
-        function closeDetailModal() { document.getElementById('detailModal').classList.add('hidden'); }
+        function closeDetailModal() { 
+            document.getElementById('detailModal').classList.add('hidden'); 
+            setBottomNavVisibility(false); // show bottom nav
+        }
 
         function openEditModal(custId, name, date) {
-            document.getElementById('editModal').classList.remove('hidden');
+            setBottomNavVisibility(true);
             let target = bookings.find(b => getCustomerID(b) === custId && getDate(b) === date);
-            const container = document.getElementById('editModalContent');
-            
-            if(!target) {
-                container.innerHTML = `<p class="text-red-500 text-center">Booking not found.</p>`;
-                return;
-            }
+            if(!target) { alert("Booking not found."); return; }
 
-            container.innerHTML = `
-                <div class="space-y-3 text-xs">
-                    <div class="bg-amber-50 dark:bg-slate-700 border border-amber-200 dark:border-amber-600 p-2.5 rounded-xl space-y-1 text-amber-900 dark:text-amber-200">
-                        <div><b>Customer:</b> ${name} (${custId})</div>
-                        <div><b>Event Date:</b> ${date}</div>
-                        <div><b>Event:</b> ${getEvent(target)}</div>
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Update Total Package (₹)</label>
-                        <input type="number" id="editTotal" value="${getTotal(target)}" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none">
-                    </div>
-                    <div>
-                        <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Update Advance (₹)</label>
-                        <input type="number" id="editAdvance" value="${getAdvance(target)}" class="w-full border dark:border-slate-600 dark:bg-slate-700 rounded-lg p-2 text-xs outline-none">
-                    </div>
-                    <div class="flex gap-2 pt-2">
-                        <button onclick="deleteBooking('${custId}', '${name}', '${date}')" class="flex-1 bg-red-100 dark:bg-red-900/50 hover:bg-red-200 text-red-700 dark:text-red-300 py-2 rounded-lg font-bold flex items-center justify-center gap-1">
-                            <i class="fas fa-trash"></i> Delete Booking
-                        </button>
-                        <button onclick="closeEditModal()" class="px-3 py-2 border dark:border-slate-600 rounded-lg font-medium">Cancel</button>
-                    </div>
-                </div>
-            `;
+            document.getElementById('editCustId').value = custId;
+            document.getElementById('editOriginalDate').value = date;
+            
+            document.getElementById('editName').value = getName(target);
+            document.getElementById('editMobile').value = getMobile(target);
+            document.getElementById('editEventDate').value = getDate(target);
+            document.getElementById('editLocation').value = getLocation(target);
+            document.getElementById('editEvent').value = getEvent(target);
+            document.getElementById('editCamera').value = getCamera(target);
+            
+            document.getElementById('editTotal').value = getTotal(target);
+            document.getElementById('editAdvance').value = getAdvance(target);
+            document.getElementById('editAlbum').value = getAlbum(target);
+            document.getElementById('editNote').value = getNote(target);
+
+            calcEditBaki();
+            document.getElementById('editModal').classList.remove('hidden');
         }
-        function closeEditModal() { document.getElementById('editModal').classList.add('hidden'); }
+
+        function calcEditBaki() {
+            const tot = parseFloat(document.getElementById('editTotal').value) || 0;
+            const adv = parseFloat(document.getElementById('editAdvance').value) || 0;
+            const baki = Math.max(0, tot - adv);
+            document.getElementById('editBakiText').innerText = `₹${baki.toLocaleString()}`;
+        }
+
+        function closeEditModal() { 
+            document.getElementById('editModal').classList.add('hidden'); 
+            setBottomNavVisibility(false);
+        }
+
+        function saveFullEditedBooking(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveEditBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Saving...`;
+
+            const custId = document.getElementById('editCustId').value;
+            const origDate = document.getElementById('editOriginalDate').value;
+
+            let target = bookings.find(b => getCustomerID(b) === custId && getDate(b) === origDate);
+            if(target) {
+                const name = document.getElementById('editName').value.trim();
+                const mobile = document.getElementById('editMobile').value.trim();
+                const newDate = document.getElementById('editEventDate').value;
+                const location = document.getElementById('editLocation').value.trim();
+                const event = document.getElementById('editEvent').value.trim();
+                const camera = document.getElementById('editCamera').value.trim();
+                const total = parseFloat(document.getElementById('editTotal').value) || 0;
+                const advance = parseFloat(document.getElementById('editAdvance').value) || 0;
+                const baki = Math.max(0, total - advance);
+                const album = document.getElementById('editAlbum').value.trim();
+                const note = document.getElementById('editNote').value.trim();
+
+                target.Name = name; target.Mobile = mobile; target.Date = newDate;
+                target.Location = location; target.Event = event; target.Camera = camera;
+                target.Total = total; target.Advance = advance; target.Baki = baki;
+                target.Album = album; target.Note = note;
+
+                processAndRender();
+                closeEditModal();
+
+                fetch(GOOGLE_SHEET_URL, {
+                    method: "POST", mode: "no-cors",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        action: "update_full", uid: custId, origDate: origDate,
+                        name, mobile, date: newDate, location, event, camera,
+                        total, advance, baki, album, note
+                    })
+                }).then(() => {
+                    btn.disabled = false;
+                    btn.innerText = "Save Changes";
+                    setTimeout(fetchFromServer, 1500);
+                }).catch(() => { btn.disabled = false; btn.innerText = "Save Changes"; });
+            }
+        }
 
         function openSettingsModal() {
+            setBottomNavVisibility(true);
             document.getElementById('settingsModal').classList.remove('hidden');
             renderTrash();
         }
-        function closeSettingsModal() { document.getElementById('settingsModal').classList.add('hidden'); }
+        function closeSettingsModal() { 
+            document.getElementById('settingsModal').classList.add('hidden'); 
+            setBottomNavVisibility(false);
+        }
 
         function renderTrash() {
             const trashList = bookings.filter(b => getStatus(b) === 'DELETED');
@@ -725,7 +962,6 @@
             if(target) {
                 target.Status = "DELETED";
                 processAndRender();
-                closeEditModal();
                 fetch(GOOGLE_SHEET_URL, {
                     method: "POST", mode: "no-cors",
                     headers: { "Content-Type": "application/json" },
@@ -828,7 +1064,10 @@
             if(rows.length > 1) btn.closest('.event-row').remove();
         }
 
+        /* --- SIGNATURE CANVAS & FULL SCREEN LOGIC --- */
         let canvas, ctx, isDrawing = false, hasDrawnSig = false;
+        let fullCanvas, fullCtx, isFullDrawing = false;
+
         function initSignatureCanvas() {
             canvas = document.getElementById('sigCanvas');
             if(!canvas) return;
@@ -841,6 +1080,15 @@
             canvas.addEventListener('touchstart', startDrawing);
             canvas.addEventListener('touchmove', draw);
             canvas.addEventListener('touchend', stopDrawing);
+
+            fullCanvas = document.getElementById('fullCanvas');
+            fullCtx = fullCanvas.getContext('2d');
+            fullCanvas.addEventListener('mousedown', startFullDrawing);
+            fullCanvas.addEventListener('mousemove', drawFull);
+            fullCanvas.addEventListener('mouseup', stopFullDrawing);
+            fullCanvas.addEventListener('touchstart', startFullDrawing);
+            fullCanvas.addEventListener('touchmove', drawFull);
+            fullCanvas.addEventListener('touchend', stopFullDrawing);
         }
 
         function startDrawing(e) {
@@ -858,15 +1106,66 @@
             const rect = canvas.getBoundingClientRect();
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#1e1b4b';
+            ctx.lineWidth = currentLineWidth; ctx.lineCap = 'round'; ctx.strokeStyle = currentColor;
             ctx.lineTo(clientX - rect.left, clientY - rect.top);
             ctx.stroke();
         }
 
         function stopDrawing() { isDrawing = false; }
+
         function clearSignature() { 
             if(ctx) { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
             hasDrawnSig = false;
+        }
+
+        function openFullscreenSignature() {
+            setBottomNavVisibility(true);
+            document.getElementById('fullSigModal').classList.remove('hidden');
+            const rect = fullCanvas.parentElement.getBoundingClientRect();
+            fullCanvas.width = rect.width;
+            fullCanvas.height = rect.height;
+            fullCtx.fillStyle = "#ffffff";
+            fullCtx.fillRect(0, 0, fullCanvas.width, fullCanvas.height);
+        }
+
+        function setPenColor(color) { currentColor = color; }
+        function setPenWidth(width) { currentLineWidth = parseInt(width); }
+
+        function startFullDrawing(e) {
+            isFullDrawing = true;
+            const rect = fullCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            fullCtx.beginPath();
+            fullCtx.moveTo(clientX - rect.left, clientY - rect.top);
+        }
+
+        function drawFull(e) {
+            if(!isFullDrawing) return;
+            if(e.cancelable) e.preventDefault();
+            const rect = fullCanvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            fullCtx.lineWidth = currentLineWidth; fullCtx.lineCap = 'round'; fullCtx.strokeStyle = currentColor;
+            fullCtx.lineTo(clientX - rect.left, clientY - rect.top);
+            fullCtx.stroke();
+        }
+
+        function stopFullDrawing() { isFullDrawing = false; }
+        function clearFullSignature() { fullCtx.fillStyle = "#ffffff"; fullCtx.fillRect(0, 0, fullCanvas.width, fullCanvas.height); }
+
+        function saveFullSignature() {
+            const dataUrl = fullCanvas.toDataURL();
+            const img = new Image();
+            img.onload = function() {
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                hasDrawnSig = true;
+            };
+            img.src = dataUrl;
+            document.getElementById('fullSigModal').classList.add('hidden');
+            setBottomNavVisibility(false);
         }
 
         function saveBooking(e) {
@@ -959,15 +1258,26 @@
             }
         }
 
-        function openModal() { document.getElementById('bookingModal').classList.remove('hidden'); }
-        function closeModal() { document.getElementById('bookingModal').classList.add('hidden'); }
+        function openModal() { 
+            setBottomNavVisibility(true);
+            document.getElementById('bookingModal').classList.remove('hidden'); 
+        }
+        function closeModal() { 
+            document.getElementById('bookingModal').classList.add('hidden'); 
+            setBottomNavVisibility(false);
+        }
+        
         function openMonthSitesModal() {
+            setBottomNavVisibility(true);
             document.getElementById('monthSitesModal').classList.remove('hidden');
             const todayStr = new Date().toISOString().split('T')[0];
             document.getElementById('filterMonthInput').value = todayStr.substring(0, 7);
             filterMonthSites();
         }
-        function closeMonthSitesModal() { document.getElementById('monthSitesModal').classList.add('hidden'); }
+        function closeMonthSitesModal() { 
+            document.getElementById('monthSitesModal').classList.add('hidden'); 
+            setBottomNavVisibility(false);
+        }
 
         function filterMonthSites() {
             const filterVal = document.getElementById('filterMonthInput').value;
@@ -1005,10 +1315,14 @@
         }
 
         function openClashesModal() {
+            setBottomNavVisibility(true);
             document.getElementById('clashesModal').classList.remove('hidden');
             renderClashBreakdown();
         }
-        function closeClashesModal() { document.getElementById('clashesModal').classList.add('hidden'); }
+        function closeClashesModal() { 
+            document.getElementById('clashesModal').classList.add('hidden'); 
+            setBottomNavVisibility(false);
+        }
 
         function switchClashTab(tab) {
             currentClashTab = tab;
